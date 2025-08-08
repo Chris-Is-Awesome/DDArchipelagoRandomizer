@@ -46,7 +46,7 @@ internal class ConnectionMenu : CustomUI
 		{
 			HorizontalAlignment = HorizontalAlignment.Center,
 			VerticalAlignment = VerticalAlignment.Center,
-			Padding = new Padding(30),
+			Padding = new Padding(60),
 		};
 		TextObject headingText = new TextObject(layoutRoot, "Heading")
 		{
@@ -173,14 +173,27 @@ internal class ConnectionMenu : CustomUI
 				yield return null;
 			}
 
-			if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+			if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Buttons.Tapped("MenuOk"))
 			{
 				ClickedConnect(null);
 			}
-			else if (Input.GetKeyDown(KeyCode.Tab))
+			else if (Input.GetKeyDown(KeyCode.Tab) || Buttons.Tapped("MenuRight"))
 			{
 				currentInputFieldIndex = (currentInputFieldIndex + 1) % tabbableInputs.Length;
 				tabbableInputs[currentInputFieldIndex].SelectAndActivate();
+			}
+			else if (Buttons.Tapped("MenuLeft"))
+			{
+				currentInputFieldIndex = (currentInputFieldIndex - 1) % tabbableInputs.Length;
+				if (currentInputFieldIndex < 0)
+				{
+					currentInputFieldIndex += tabbableInputs.Length;
+				}
+				tabbableInputs[currentInputFieldIndex].SelectAndActivate();
+			}
+			else if (Input.GetKeyDown(KeyCode.Escape) || Buttons.Tapped("MenuBack"))
+			{
+				ClickedBack(null);
 			}
 
 			yield return null;
@@ -206,7 +219,7 @@ internal class ConnectionMenu : CustomUI
 		// Wait for end of frame so we can select it after the others have been created
 		yield return new WaitForEndOfFrame();
 		yield return new WaitForEndOfFrame();
-		portInput.SelectAndActivate();
+		urlInput.SelectAndActivate();
 	}
 
 	[HarmonyPatch]
