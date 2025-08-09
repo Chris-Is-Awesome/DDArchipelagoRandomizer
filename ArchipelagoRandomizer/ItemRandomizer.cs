@@ -19,7 +19,6 @@ internal class ItemRandomizer : MonoBehaviour
 
 	private void OnEnable()
 	{
-		PlaceItems();
 		Logger.Log("Item randomizer started!");
 	}
 
@@ -86,6 +85,11 @@ internal class ItemRandomizer : MonoBehaviour
 	{
 		icSaveData = IC.SaveData.Open();
 
+		if (icSaveData.UnnamedPlacements.Count > 0)
+		{
+			return; // ItemChanger Placements already exist
+		}
+
 		// Get ItemPlacements from scouted placements
 		foreach (ItemPlacement itemPlacement in Archipelago.Instance.ScoutedPlacements)
 		{
@@ -125,7 +129,6 @@ internal class ItemRandomizer : MonoBehaviour
 		};
 		icSaveData.StartingWeapon = startingWeaponId;
 
-		// Save, since ItemChanger doesn't do it for us due to when we run this method
 		GameSave saveFile = TitleScreen.instance.saveMenu.saveSlots[TitleScreen.instance.saveMenu.index].saveFile;
 		saveFile.weaponId = icSaveData.StartingWeapon;
 		if (Archipelago.Instance.GetSlotData<long>("start_day_or_night") == 1)
@@ -134,7 +137,8 @@ internal class ItemRandomizer : MonoBehaviour
 			LightNight.nightTime = true;
 			saveFile.SetNightState(true);
 		}
-		
+
+		// Save, since ItemChanger doesn't do it for us due to when we run this method
 		saveFile.Save();
 	}
 
@@ -188,6 +192,13 @@ internal class ItemRandomizer : MonoBehaviour
 			{
 				Archipelago.Instance.SendCompletion();
 			}
+		}
+
+		[HarmonyPrefix, HarmonyPatch(typeof(SaveSlot), nameof(SaveSlot.LoadSave))]
+		[HarmonyAfter("deathsdoor.itemchanger")] // Needs to go after ItemChanger has loaded its save
+		private static void LoadFilePatch()
+		{
+			instance.PlaceItems();
 		}
 
 	}
