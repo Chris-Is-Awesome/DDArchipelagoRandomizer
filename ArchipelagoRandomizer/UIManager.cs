@@ -9,22 +9,10 @@ internal class UIManager
 	public static readonly UIManager instance = new();
 	private static readonly ConnectionMenu connectionMenu = new();
 	private static readonly NotificationPopup notificationHandler = new();
-	private static bool cachedBackgroundSprite = false;
 
 	public static UIManager Instance => instance;
 
-	private UIManager()
-	{
-		SceneManager.sceneLoaded += OnSceneLoaded;
-	}
-
-	private void OnSceneLoaded(Scene scene, LoadSceneMode _)
-	{
-		if (!cachedBackgroundSprite && scene.name == "TitleScreen")
-		{
-			CustomUI.CacheBackgroundSprite();
-		}
-	}
+	private UIManager() { }
 
 	public void ShowConnectionMenu()
 	{

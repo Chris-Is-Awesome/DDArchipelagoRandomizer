@@ -100,6 +100,10 @@ internal abstract class CustomUI
 
 	private Sprite GetBackgroundSprite()
 	{
+		if (backgroundSprites == null)
+		{
+			CacheBackgroundSprite();
+		}
 		if (backgroundSprites.TryGetValue(BackgroundType, out Sprite sprite))
 		{
 			return sprite;
