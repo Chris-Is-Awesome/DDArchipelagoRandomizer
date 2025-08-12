@@ -29,10 +29,23 @@ internal class UIManager
 		notificationHandler.Show(message);
 	}
 
-	internal void AddDeathlinkToggle()
+	internal void AddOptionsMenuItems()
+	{
+		AddDeathlinkToggle();
+		AddCutsceneToggle();
+		IngameUIManager.RetriggerModifyingOptionsMenuTitleScreen();
+	}
+
+	private void AddDeathlinkToggle()
 	{
 		OptionsToggle optionsToggle = new("DEATHLINK", "UI_ToggleDeathlink", "ToggleDeathlink", [IngameUIManager.RelevantScene.TitleScreen], Archipelago.Instance.ToggleDeathlink, Archipelago.Instance.InitializeDeathlinkToggle);
 		IngameUIManager.AddOptionsToggle(optionsToggle);
-		IngameUIManager.RetriggerModifyingOptionsMenuTitleScreen();
 	}
+
+	private void AddCutsceneToggle()
+	{
+		OptionsToggle optionsToggle = new("SKIP CUTSCENES", "UI_ToggleSkipCutscenes", "ToggleSkipCutscenes", [IngameUIManager.RelevantScene.TitleScreen], Archipelago.Instance.ToggleSkipCutscenes, Archipelago.Instance.InitializeSkipCutscenes);
+		IngameUIManager.AddOptionsToggle(optionsToggle);
+	}
+
 }
