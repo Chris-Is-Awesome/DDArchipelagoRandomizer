@@ -32,6 +32,7 @@ internal class Archipelago
 	private ConcurrentQueue<ItemInfo> outgoingItems;
 	private int itemIndex;
 	private bool isConnected;
+	internal bool IsConnected() => isConnected;
 	private bool hasCompleted;
 	private readonly float itemReceiveDelay = 3f;
 

@@ -198,7 +198,10 @@ internal class ItemRandomizer : MonoBehaviour
 		[HarmonyAfter("deathsdoor.itemchanger")] // Needs to go after ItemChanger has loaded its save
 		private static void LoadFilePatch()
 		{
-			instance.PlaceItems();
+			if (Archipelago.Instance.IsConnected())
+			{
+				instance.PlaceItems();
+			}
 		}
 
 	}
