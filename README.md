@@ -22,7 +22,7 @@ We talk about the development of this in the Death's Door thread in the `future-
     - [Alternative Game Modes](https://github.com/dpinela/DeathsDoor.AlternativeGameModes) (required)
     - [Item Changer](https://github.com/dpinela/DeathsDoor.ItemChanger) (required)
     - [MagicUI](https://github.com/dpinela/DeathsDoor.MagicUI) (required)
-    - [AddUIToOptionsMenu](github.com/roseasromeo/DeathsDoor.AddUIToOptionsMenu) (required)
+    - [AddUIToOptionsMenu](https://github.com/roseasromeo/DeathsDoor.AddUIToOptionsMenu) (required)
     - [ReturnToSpawn](https://github.com/roseasromeo/DeathsDoorReturnToSpawn) (recommended, but not required)
 1. Create a new file at the project's root named `config.targets` and add the following code:
     ```xml
