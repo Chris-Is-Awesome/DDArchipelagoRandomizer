@@ -22,10 +22,9 @@ internal class Archipelago
 	public static event Action OnDisconnected;
 	private static readonly Archipelago instance = new();
 	private readonly string apSaveDataPath = $"{Application.persistentDataPath}/SAVEDATA/Save_slot#-Archipelago.json";
-	private static readonly string apConfigPath = $"{Application.persistentDataPath}/Archipelago_config.json";
 	private APSaveData apSaveData;
 	internal APConfig apConfig = APConfig.LoadAPConfig();
-	private UIManager uiManager = UIManager.Instance;
+	private readonly UIManager uiManager = UIManager.Instance;
 	private Dictionary<string, object> slotData;
 	private IEnumerator checkItemsReceived;
 	private IEnumerator incomingItemHandler;
@@ -487,6 +486,7 @@ internal class Archipelago
 
 	public class APConfig
 	{
+		private static readonly string apConfigPath = $"{Application.persistentDataPath}/Archipelago_config.json";
 		public bool DeathLinkEnabled { get; set; } = false;
 
 		internal void SaveAPConfig()
