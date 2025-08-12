@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using IC = DDoor.ItemChanger;
 
 namespace DDoor.ArchipelagoRandomizer;
@@ -173,6 +174,21 @@ internal class ItemRandomizer : MonoBehaviour
 
 		// Save, since ItemChanger doesn't do it for us due to when we run this method
 		saveFile.Save();
+	}
+
+	public void QueueTriggerGroveOfSpiritsDoorCheck()
+	{
+		SceneManager.sceneLoaded += TriggerGroveOfSpiritsDoorCheck;
+
+		void TriggerGroveOfSpiritsDoorCheck(Scene scene, LoadSceneMode _)
+		{
+			if (scene.name == "lvl_HallOfDoors")
+			{
+				Plugin.Logger.LogDebug("Triggering door check");
+				icSaveData.UnnamedPlacements["Grove of Spirits Door"].Trigger();
+				SceneManager.sceneLoaded -= TriggerGroveOfSpiritsDoorCheck;
+			}
+		}
 	}
 
 	public struct ItemPlacement(string item, string location, string forPlayer, bool isForAnotherPlayer)
