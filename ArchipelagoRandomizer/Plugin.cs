@@ -33,7 +33,7 @@ public class Plugin : BaseUnityPlugin
 			});
 
 			new Harmony("deathsdoor.archipelagorandomizer").PatchAll();
-			Archipelago.Instance.AddDeathlinkToggle();
+			UIManager.Instance.AddDeathlinkToggle();
 
 			InitStatus = 1;
 		}
