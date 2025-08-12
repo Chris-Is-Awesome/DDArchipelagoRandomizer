@@ -33,6 +33,7 @@ internal class UIManager
 	{
 		AddDeathlinkToggle();
 		AddItemHandlingToggle();
+		AddCutsceneToggle();
 		IngameUIManager.RetriggerModifyingOptionsMenuTitleScreen();
 	}
 
@@ -45,6 +46,12 @@ internal class UIManager
 	private void AddItemHandlingToggle()
 	{
 		OptionsToggle optionsToggle = new(itemText: "FAST ITEMS", gameObjectName: "ARCHIPELAGO_UI_ToggleItemHandling", id: "ToggleItemHandling", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen, IngameUIManager.RelevantScene.InGame], toggleAction: Archipelago.Instance.ToggleItemHandling, toggleValueInitializer: Archipelago.Instance.InitializeItemHandling, contextText: "BUTTON:CONFIRM Toggle Fast Items BUTTON:BACK Back");
+		IngameUIManager.AddOptionsMenuItem(optionsToggle);
+	}
+
+	private void AddCutsceneToggle()
+	{
+		OptionsToggle optionsToggle = new("SKIP CUTSCENES", "UI_ToggleSkipCutscenes", "ToggleSkipCutscenes", [IngameUIManager.RelevantScene.TitleScreen], Archipelago.Instance.ToggleSkipCutscenes, Archipelago.Instance.InitializeSkipCutscenes);
 		IngameUIManager.AddOptionsMenuItem(optionsToggle);
 	}
 }
