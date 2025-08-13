@@ -4,6 +4,7 @@ using MagicUI.Elements;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UEUI = UnityEngine.UI;
 using AGM = DDoor.AlternativeGameModes;
 
 namespace DDoor.ArchipelagoRandomizer.UI;
@@ -58,7 +59,8 @@ internal class ConnectionMenu : CustomUI
 		};
 		mainStack.Children.Add(headingText);
 		urlInput = CreateTextInput("URLInput", 400, "URL (eg. archipelago.gg)");
-		portInput = CreateTextInput("PortInput", 200, "Port (eg. 38281)");
+		portInput = CreateNumericalInput("PortInput", 200, "Port (eg. 38281)");
+		portInput.GameObject.GetComponent<UEUI.InputField>().characterLimit = 5; // Ports are max 5 numbers
 		mainStack.Children.Add(CreateStackLayout("URLPortStack", urlInput, portInput));
 		slotNameInput = CreateTextInput("SlotNameInput", 200, "Player name");
 		passwordInput = CreateTextInput("PasswordInput", 400, "Password");
@@ -150,6 +152,18 @@ internal class ConnectionMenu : CustomUI
 			FontSize = 50,
 			Placeholder = placeholder,
 			Padding = new Padding(25)
+		};
+	}
+
+	private TextInput CreateNumericalInput(string name, int minWidth, string placeholder)
+	{
+		return new TextInput(layoutRoot, name)
+		{
+			MinWidth = minWidth,
+			FontSize = 50,
+			Placeholder = placeholder,
+			Padding = new Padding(25),
+			ContentType = UEUI.InputField.ContentType.IntegerNumber
 		};
 	}
 
