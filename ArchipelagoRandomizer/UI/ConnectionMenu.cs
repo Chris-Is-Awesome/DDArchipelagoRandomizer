@@ -86,7 +86,14 @@ internal class ConnectionMenu : CustomUI
 		}
 
 		urlInput.Text = connectioninfo.URL;
-		portInput.Text = connectioninfo.Port.ToString();
+		if (connectioninfo.Port == 0)
+		{
+			portInput.Text = "";
+		}
+		else
+		{
+			portInput.Text = connectioninfo.Port.ToString();
+		}
 		slotNameInput.Text = connectioninfo.SlotName;
 		passwordInput.Text = connectioninfo.Password;
 	}
