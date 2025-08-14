@@ -168,15 +168,6 @@ internal class ItemRandomizer : MonoBehaviour
 	[HarmonyPatch]
 	private class Patches
 	{
-		/// <summary>
-		/// Sends completion for main ending
-		/// </summary>
-		// [HarmonyPrefix, HarmonyPatch(typeof(SoulAbsorbCutscene), nameof(SoulAbsorbCutscene.StartCutscene))] //this triggers goal on killing any of the bosses for a giant soul
-		// private static void EndGameCsPatch()
-		// {
-		// 	Archipelago.Instance.SendCompletion();
-		// }
-
 		// / <summary>
 		// / Sends completion for main ending
 		// / </summary>
@@ -194,7 +185,10 @@ internal class ItemRandomizer : MonoBehaviour
 		[HarmonyAfter("deathsdoor.itemchanger")] // Needs to go after ItemChanger has loaded its save
 		private static void LoadFilePatch()
 		{
-			instance.PlaceItems();
+			if (Archipelago.Instance.IsConnected())
+			{
+				instance.PlaceItems();
+			}
 		}
 
 		/// <summary>
@@ -208,7 +202,6 @@ internal class ItemRandomizer : MonoBehaviour
 			{
 				DDItem dDItem = (DDItem)loggedItem.Item;
 				bool IsForAnotherPlayer = Archipelago.Instance.ScoutedPlacements.First(ip => ip.Location == dDItem.Location).IsForAnotherPlayer;
-				// Logger.LogWarning($"{IsForAnotherPlayer}");
 				return IsForAnotherPlayer; // if for this player, skip the notification
 			}
 			return true;

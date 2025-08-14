@@ -60,13 +60,7 @@ internal class ArchipelagoRandomizerMod
 		ConnectToArchipelago(connectionInfo);
 	}
 
-	public void EnableMod()
-	{
-		APSaveData connectionInfo = Archipelago.Instance.GetAPSaveData();
-		ConnectToArchipelago(connectionInfo, isAlreadyLoading: true);
-	}
-
-	private async void ConnectToArchipelago(APSaveData connectionInfo, bool isAlreadyLoading = false)
+	private async void ConnectToArchipelago(APSaveData connectionInfo)
 	{
 		try
 		{
@@ -77,13 +71,11 @@ internal class ArchipelagoRandomizerMod
 				ItemRandomizer itemRando = archipelagoRandomizer.AddComponent<ItemRandomizer>();
 				archipelagoRandomizer.AddComponent<DeathManager>();
 				Object.DontDestroyOnLoad(archipelagoRandomizer);
-
-				if (!isAlreadyLoading)
-				{
-					UIManager.Instance.HideConnectionMenu();
-					SaveMenu saveMenu = TitleScreen.instance.saveMenu;
-					saveMenu.saveSlots[saveMenu.index].LoadSave();
-				}
+				UIManager.Instance.HideConnectionMenu();
+				SaveMenu saveMenu = TitleScreen.instance.saveMenu;
+				saveMenu.saveSlots[saveMenu.index].LoadSave();
+				GameSave.currentSave.SetKeyState("ArchipelagoRandomizer", true);
+				GameSave.currentSave.Save();
 			}
 		}
 		catch (LoginValidationException ex)
@@ -99,27 +91,5 @@ internal class ArchipelagoRandomizerMod
 	{
 		Object.Destroy(archipelagoRandomizer);
 		Archipelago.Instance.Disconnect();
-	}
-
-	[HarmonyPatch]
-	private class Patches
-	{
-		/// <summary>
-		/// Enables the mod if a compatible save file is loaded
-		/// </summary>
-		[HarmonyPrefix, HarmonyPatch(typeof(SaveSlot), nameof(SaveSlot.useSaveFile))]
-		private static void LoadFilePatch(SaveSlot __instance)
-		{
-			GameSave.currentSave = __instance.saveFile;
-
-			if (__instance.saveFile.IsLoaded() && GameSave.currentSave.IsKeyUnlocked("ArchipelagoRandomizer"))
-			{
-				// If loading AP file
-				if (AGM.AlternativeGameModes.SelectedModeName == "START")
-				{
-					instance.EnableMod();
-				}
-			}
-		}
 	}
 }
