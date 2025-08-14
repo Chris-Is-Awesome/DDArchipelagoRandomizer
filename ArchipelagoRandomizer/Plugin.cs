@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using UnityEngine.Events;
 using AGM = DDoor.AlternativeGameModes;
 
 namespace DDoor.ArchipelagoRandomizer;
@@ -17,6 +18,9 @@ public class Plugin : BaseUnityPlugin
 
 	public static Plugin Instance => instance;
 	public int InitStatus { get; internal set; } = 0;
+
+	#nullable enable
+	internal event UnityAction? OnUpdate;
 
 	private void Awake()
 	{
@@ -43,4 +47,11 @@ public class Plugin : BaseUnityPlugin
 			throw err;
 		}
 	}
+
+	private void Update()
+	{
+		OnUpdate?.Invoke();
+	}
 }
+
+#nullable disable

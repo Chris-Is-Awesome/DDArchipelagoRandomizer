@@ -47,5 +47,4 @@ internal class UIManager
 		OptionsToggle optionsToggle = new("SKIP CUTSCENES", "UI_ToggleSkipCutscenes", "ToggleSkipCutscenes", [IngameUIManager.RelevantScene.TitleScreen], Archipelago.Instance.ToggleSkipCutscenes, Archipelago.Instance.InitializeSkipCutscenes);
 		IngameUIManager.AddOptionsToggle(optionsToggle);
 	}
-
 }
