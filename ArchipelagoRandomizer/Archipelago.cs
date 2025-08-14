@@ -3,6 +3,7 @@ using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
+using HarmonyLib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -21,8 +22,16 @@ internal class Archipelago
 	public static event Action OnConnected;
 	public static event Action OnDisconnected;
 	private static readonly Archipelago instance = new();
-	private readonly string apSaveDataPath = $"{Application.persistentDataPath}/SAVEDATA/Save_slot#-Archipelago.json";
-	private APSaveData apSaveData;
+	private APSaveData apSaveSlot1Data = APSaveData.Load(1);
+	private APSaveData apSaveSlot2Data = APSaveData.Load(2);
+	private APSaveData apSaveSlot3Data = APSaveData.Load(3);
+	private APSaveData GetAPSaveDataForSlot(int saveIndex) => saveIndex switch
+	{
+		1 => apSaveSlot1Data,
+		2 => apSaveSlot2Data,
+		3 => apSaveSlot3Data,
+		_ => throw new IndexOutOfRangeException("Invalid save index"),
+	};
 	private UIManager uiManager;
 	private Dictionary<string, object> slotData;
 	private IEnumerator checkItemsReceived;
@@ -75,6 +84,15 @@ internal class Archipelago
 				uiManager.ShowNotification(message);
 				throw new LoginValidationException(message);
 			case LoginSuccessful success:
+
+				if (apSaveData.Seed != "" && apSaveData.Seed != Session.RoomState.Seed)
+				{
+					// Reject if the saved data has the wrong seed (TODO: possibly other validation?)
+
+					message = $"Failed to connect to Archipelago: Saved data has a different seed than the server. Each new room needs a new save.";
+					uiManager.ShowNotification(message);
+					throw new LoginValidationException(message);
+				}
 				await OnSocketOpened(success, apSaveData);
 				Logger.Log($"Successfully connected to Archipelago at {apSaveData.URL}:{apSaveData.Port} as {apSaveData.SlotName} on team {success.Team}. Have fun!");
 				return success;
@@ -116,7 +134,7 @@ internal class Archipelago
 		if (!isConnected)
 		{
 			return;
-		}		
+		}
 
 		long locationId = Locations.ItemChangerLocationToAPLocationID(locationName);
 		Session.Locations.CompleteLocationChecks(locationId);
@@ -139,28 +157,7 @@ internal class Archipelago
 	public APSaveData GetAPSaveData()
 	{
 		int saveIndex = GetSaveIndex();
-
-		if (apSaveData == null)
-		{
-			string path = apSaveDataPath.Replace("#", (saveIndex).ToString());
-			if (File.Exists(path))
-			{
-				string json = File.ReadAllText(path);
-				apSaveData = JsonConvert.DeserializeObject<APSaveData>(json);
-			}
-			else
-			{
-				apSaveData = new APSaveData();
-				apSaveData.CreateEmptySave();
-			}	
-		}
-
-		if (apSaveData == null)
-		{
-			Logger.LogError($"Failed to find AP connection apSaveData save file for slot {saveIndex}:");
-		}
-
-		return apSaveData;
+		return GetAPSaveDataForSlot(saveIndex);
 	}
 
 	public T GetSlotData<T>(string key)
@@ -179,14 +176,15 @@ internal class Archipelago
 	private async Task OnSocketOpened(LoginSuccessful loginSuccess, APSaveData apSaveData)
 	{
 		slotData = loginSuccess.SlotData;
-		itemIndex = TitleScreen.instance.saveMenu.saveSlots[TitleScreen.instance.index].saveFile.GetCountKey("AP_ItemsReceived");
+		itemIndex = TitleScreen.instance.saveMenu.saveSlots[TitleScreen.instance.saveMenu.index].saveFile.GetCountKey("AP_ItemsReceived");
 		checkItemsReceived = CheckItemsReceieved();
 		incomingItemHandler = IncomingItemHandler();
 		outgoingItemHandler = OutgoingItemHandler();
 		incomingItems = new ConcurrentQueue<(ItemInfo item, int index)>();
 		outgoingItems = new ConcurrentQueue<ItemInfo>();
 		Session.Socket.SocketClosed += OnSocketClosed;
-		SaveAPData(apSaveData);
+		apSaveData.Seed = Session.RoomState.Seed;
+		apSaveData.Save();
 
 		Logger.Log("Slot data:");
 		foreach (KeyValuePair<string, object> kvp in slotData)
@@ -301,41 +299,6 @@ internal class Archipelago
 		}
 	}
 
-	private void SaveAPData(APSaveData data)
-	{
-		string path = GetAPSaveDataPath();
-
-		// Create file
-		if (!File.Exists(path))
-		{
-			string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-			File.WriteAllText(path, json);
-			Logger.Log($"Created AP save data file at: {path}");
-		}
-		// Update connection info
-		else
-		{
-			apSaveData.UpdateConnectionInfo(data);
-
-			if (Session.Locations.AllLocationsChecked.Count < 1)
-			{
-				apSaveData.ClearLocationsChecked();
-			}
-			else if (data.LocationsChecked.Count < 1)
-			{
-				foreach (long checkedLocationId in Session.Locations.AllLocationsChecked)
-				{
-					string checkedLocationName = Session.Locations.GetLocationNameFromId(checkedLocationId);
-					apSaveData.AddCheckedLocation(checkedLocationName);
-				}
-			}
-
-			Logger.Log($"Updated AP save data file at: {path}");
-		}
-
-		apSaveData = data;
-	}
-
 	private async Task ScoutAllLocations()
 	{
 		ScoutedPlacements = [.. (await Session.Locations.ScoutLocationsAsync(
@@ -363,10 +326,7 @@ internal class Archipelago
 		);
 	}
 
-	private string GetAPSaveDataPath()
-	{
-		return apSaveDataPath.Replace("#", GetSaveIndex().ToString());
-	}
+	private static string GetAPSaveDataPath(int saveIndex) => $"{Application.persistentDataPath}/SAVEDATA/Save_slot{saveIndex}-Archipelago.json";
 
 	private int GetSaveIndex()
 	{
@@ -375,85 +335,82 @@ internal class Archipelago
 			: int.Parse(GameSave.currentSave.saveId.Substring(4));
 	}
 
+	public void ClearAPSaveSlot(int saveIndex)
+	{
+		GetAPSaveDataForSlot(saveIndex).Erase();
+		switch (saveIndex)
+		{
+			case 1: apSaveSlot1Data = new(1); break;
+			case 2: apSaveSlot2Data = new(2); break;
+			case 3: apSaveSlot3Data = new(3); break;
+			default: throw new IndexOutOfRangeException("Invalid save index");
+		}
+	}
+
+#nullable enable
 	public class APSaveData
 	{
-		public string URL { get; set; }
+		public string URL { get; set; } = "";
 		public int Port { get; set; }
-		public string SlotName { get; set; }
-		public string Password { get; set; }
-		public List<string> LocationsChecked
+		public string SlotName { get; set; } = "";
+		public string Password { get; set; } = "";
+    public int SaveSlotIndex { get; set; }
+		public string Seed { get; set; } = "";
+		public List<string> LocationsChecked { get; } = [];
+
+		public APSaveData(int saveIndex)
 		{
-			get
-			{
-				JObject jObject = GetJSONObject();
-				return jObject[nameof(LocationsChecked)]?.ToObject<List<string>>();
-			}
+			SaveSlotIndex = saveIndex;
 		}
 
-		public void CreateEmptySave()
+		public void Save()
 		{
-			JObject jObject = [];
-			jObject[nameof(LocationsChecked)] = new JArray();
-			UpdateJSON(jObject);
+			string path = GetAPSaveDataPath(SaveSlotIndex);
+
+			// Create file
+			string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+			File.WriteAllText(path, json);
+			Logger.Log($"Saved AP save data file at: {path}");
 		}
 
-		public void UpdateConnectionInfo(APSaveData data)
+		public static APSaveData Load(int saveIndex)
 		{
-			JObject jObject = GetJSONObject();
+			string path = GetAPSaveDataPath(saveIndex);
 
-			if (jObject.Value<string>(nameof(URL)) != data.URL)
+			APSaveData? apSaveData = null;
+
+			// Create file
+			if (File.Exists(path))
 			{
-				jObject[nameof(URL)] = data.URL;
+				string json = File.ReadAllText(path);
+				apSaveData = JsonConvert.DeserializeObject<APSaveData>(json);
 			}
+			apSaveData ??= new APSaveData(saveIndex);
+			return apSaveData;
+		}
 
-			if (jObject.Value<int>(nameof(Port)) != data.Port)
-			{
-				jObject[nameof(Port)] = data.Port;
-			}
-
-			if (jObject.Value<string>(nameof(SlotName)) != data.SlotName)
-			{
-				jObject[nameof(SlotName)] = data.SlotName;
-			}
-
-			if (jObject.Value<string>(nameof(Password)) != data.Password)
-			{
-				jObject[nameof(Password)] = data.Password;
-			}
-
-			UpdateJSON(jObject);
+		public void Erase()
+		{
+			string path = GetAPSaveDataPath(SaveSlotIndex);
+			if (File.Exists(path)) { File.Delete(path); }
 		}
 
 		public void AddCheckedLocation(string location)
 		{
-			JObject jObject = GetJSONObject();
-			JArray jArray = (JArray)jObject[nameof(LocationsChecked)];
-			jArray.Add(location);
-			UpdateJSON(jObject);
+			LocationsChecked.Add(location);
+			Save();
 		}
+	}
+#nullable disable
 
-		public void ClearLocationsChecked()
+	[HarmonyPatch]
+	private class Patches
+	{
+		[HarmonyPostfix]
+		[HarmonyPatch(typeof(SaveSlot), nameof(SaveSlot.EraseSave))]
+		private static void Postfix(SaveSlot __instance)
 		{
-			LocationsChecked.Clear();
-			JObject jObject = GetJSONObject();
-			jObject[nameof(LocationsChecked)] = new JArray();
-			UpdateJSON(jObject);
-		}
-
-		private void UpdateJSON(JObject jObject)
-		{
-			using StreamWriter sw = new StreamWriter(instance.GetAPSaveDataPath());
-			using (JsonTextWriter jtw = new JsonTextWriter(sw) { Formatting = Formatting.Indented })
-			{
-				jObject.WriteTo(jtw);
-			}
-		}
-
-		private JObject GetJSONObject()
-		{
-			string apSaveDataPath = instance.GetAPSaveDataPath();
-			string json = File.ReadAllText(apSaveDataPath);
-			return JObject.Parse(json);
+			Instance.ClearAPSaveSlot(int.Parse(__instance.saveId.Substring(__instance.saveId.Length-1)));
 		}
 	}
 }
