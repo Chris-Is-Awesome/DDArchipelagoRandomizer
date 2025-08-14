@@ -57,7 +57,7 @@
 			<HintPath>$(PluginsPath)/AlternativeGameModes/AlternativeGameModes.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="ItemChanger">
+		<Reference Include="ItemChanger" Publicize="true">
 			<HintPath>$(PluginsPath)/ItemChanger/ItemChanger.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
