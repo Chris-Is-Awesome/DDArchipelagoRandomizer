@@ -338,6 +338,17 @@ internal class Archipelago
 		return apConfig.DeathLinkEnabled;
 	}
 
+	internal void ToggleSkipCutscenes(bool newValue)
+	{
+		apConfig.SkipCutscenes = newValue;
+		apConfig.SaveAPConfig();
+	}
+
+	internal bool InitializeSkipCutscenes()
+	{
+		return apConfig.SkipCutscenes;
+	}
+
 	private static string GetAPSaveDataPath(int saveIndex) => $"{Application.persistentDataPath}/SAVEDATA/Save_slot{saveIndex}-Archipelago.json";
 
 	private int GetSaveIndex()
