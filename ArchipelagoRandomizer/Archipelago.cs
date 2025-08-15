@@ -194,6 +194,7 @@ internal class Archipelago
 		}
 
 		//Load the ItemChanger SaveData early so that we can peek and see if we need to scout
+		IC.ItemIcons.AddPath(Path.GetDirectoryName(typeof(Plugin).Assembly.Location) + "/Resources/Item Changer Icons");
 		IC.SaveData.Load("slot" + apSaveData.SaveSlotIndex.ToString());
 		IC.SaveData icSaveData = IC.SaveData.Open();
 		if (icSaveData.UnnamedPlacements.Count == 0)

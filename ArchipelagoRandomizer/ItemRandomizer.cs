@@ -20,7 +20,6 @@ internal class ItemRandomizer : MonoBehaviour
 	private void Awake()
 	{
 		instance = this;
-		IC.ItemIcons.AddPath(System.IO.Path.GetDirectoryName(typeof(Plugin).Assembly.Location) + "/Resources/Item Changer Icons");
 		itemNotifications = new ConcurrentQueue<ItemNotification>();
 		itemNotificationHandler = ItemNotificationHandler();
 	}
