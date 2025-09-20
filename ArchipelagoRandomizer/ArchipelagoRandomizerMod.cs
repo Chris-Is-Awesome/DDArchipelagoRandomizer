@@ -69,6 +69,7 @@ internal class ArchipelagoRandomizerMod
 			{
 				archipelagoRandomizer = new GameObject("ArchipelagoRandomizer");
 				ItemRandomizer itemRando = archipelagoRandomizer.AddComponent<ItemRandomizer>();
+				EnemyRandomizer enemyRando = archipelagoRandomizer.AddComponent<EnemyRandomizer>();
 				GoalModifications goalMods = archipelagoRandomizer.AddComponent<GoalModifications>();
 				MapManager mapManager = archipelagoRandomizer.AddComponent<MapManager>();
 				TrapManager trapManager = archipelagoRandomizer.AddComponent<TrapManager>();
@@ -79,6 +80,8 @@ internal class ArchipelagoRandomizerMod
 				saveMenu.saveSlots[saveMenu.index].LoadSave();
 				GameSave.currentSave.SetKeyState("ArchipelagoRandomizer", true);
 				GameSave.currentSave.Save();
+
+				Preloader.Instance.StartPreload();
 			}
 		}
 		catch (LoginValidationException ex)
