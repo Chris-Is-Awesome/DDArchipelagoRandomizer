@@ -475,18 +475,21 @@ internal class EnemyRandomizer : MonoBehaviour
 		[HarmonyPatch(typeof(LurkerEgg), nameof(LurkerEgg.Explode))]
 		private static bool LurkerEggExplodePatch(LurkerEgg __instance, Vector3 source, float modifier = 1f)
 		{
-			if (!__instance.didExplode)
+			if (Archipelago.Instance.IsConnected() && Archipelago.Instance.apConfig.EnemyRandomizer)
 			{
-				__instance.didExplode = true;
-				Vector3 vector = __instance.transform.position - source;
-				vector.Normalize();
-				vector.x += Random.Range(-0.1f, 0.1f);
-				vector.z += Random.Range(-0.1f, 0.1f);
-				float y = Mathf.Atan2(vector.x, vector.z) * 57.29578f;
-				GameObject gameObject = Instantiate(__instance.contentsPrefab, __instance.transform.position, Quaternion.Euler(0f, y, 0f));
-				gameObject.transform.SetParent(GameRoom.GetCurrentContents());
-				Destroy(__instance.gameObject);
-				return false;
+				if (!__instance.didExplode)
+				{
+					__instance.didExplode = true;
+					Vector3 vector = __instance.transform.position - source;
+					vector.Normalize();
+					vector.x += Random.Range(-0.1f, 0.1f);
+					vector.z += Random.Range(-0.1f, 0.1f);
+					float y = Mathf.Atan2(vector.x, vector.z) * 57.29578f;
+					GameObject gameObject = Instantiate(__instance.contentsPrefab, __instance.transform.position, Quaternion.Euler(0f, y, 0f));
+					gameObject.transform.SetParent(GameRoom.GetCurrentContents());
+					Destroy(__instance.gameObject);
+					return false;
+				}
 			}
 
 			return true;
@@ -497,9 +500,12 @@ internal class EnemyRandomizer : MonoBehaviour
 		[HarmonyPatch(typeof(AI_Jumper), nameof(AI_Jumper.SetState))]
 		private static void BoomerangThrowerFixJumping(AI_Jumper __instance, AI_Brain.AIState newState)
 		{
-			if (newState == AI_Brain.AIState.Jump && !(bool)__instance.currentNode)
+			if (Archipelago.Instance.IsConnected() && Archipelago.Instance.apConfig.EnemyRandomizer)
 			{
-				__instance.endJump = PlayerGlobal.instance.transform.position;
+				if (newState == AI_Brain.AIState.Jump && !(bool)__instance.currentNode)
+				{
+					__instance.endJump = PlayerGlobal.instance.transform.position;
+				}
 			}
 		}
 	}

@@ -384,6 +384,17 @@ internal class Archipelago
 		return apConfig.SkipCutscenes;
 	}
 
+	internal void ToggleEnemyRandomizer(bool newValue)
+	{
+		apConfig.EnemyRandomizer = newValue;
+		apConfig.SaveAPConfig();
+	}
+
+	internal bool InitializeEnemyRandomizer()
+	{
+		return apConfig.EnemyRandomizer;
+	}
+
 	private APSaveData GetAPSaveDataForSlot(int saveIndex)
 	{
 		if (saveIndex > apSaveDataSlots.Length || saveIndex <= 0)
@@ -473,6 +484,7 @@ internal class Archipelago
 		public bool DeathLinkEnabled { get; set; } = false;
 		public bool ReceiveItemsFast { get; set; } = false;
 		public bool SkipCutscenes { get; set; } = false;
+		public bool EnemyRandomizer { get; set; } = false;
 
 		internal void SaveAPConfig()
 		{

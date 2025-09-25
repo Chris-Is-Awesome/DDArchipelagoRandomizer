@@ -191,7 +191,7 @@ internal class Preloader : IDisposable
 		[HarmonyPatch(typeof(SaveSlot), nameof(SaveSlot.LoadSave))]
 		private static bool NewGamePatch(SaveSlot __instance)
 		{
-			if (!Archipelago.Instance.IsConnected())
+			if (!Archipelago.Instance.IsConnected() || !Archipelago.Instance.apConfig.EnemyRandomizer)
 				return true;
 
 			__instance.useSaveFile();
@@ -210,7 +210,7 @@ internal class Preloader : IDisposable
 		[HarmonyPatch(typeof(GameSceneManager), nameof(GameSceneManager.ReturnToTitle))]
 		private static void ReturnToTitlePatch()
 		{
-			if (!Archipelago.Instance.IsConnected())
+			if (!Archipelago.Instance.IsConnected() || !Archipelago.Instance.apConfig.EnemyRandomizer)
 				return;
 
 			Instance.cachedObjects.Clear();
@@ -222,7 +222,7 @@ internal class Preloader : IDisposable
 		[HarmonyPatch(typeof(LevelSpawn), nameof(LevelSpawn.Awake))]
 		private static void PreLevelSpawnAwake(LevelSpawn __instance)
 		{
-			if (IsPreloading)
+			if (Archipelago.Instance.apConfig.EnemyRandomizer && IsPreloading)
 			{
 				__instance.spawnInjuredFalling = false;
 			}
