@@ -1,0 +1,457 @@
+[
+    {
+        "startingRegion": "Door to Grove of Spirits",
+        "endingRegion": "Grove of Spirits Door",
+        "loadingZoneId": "sdoor_tutorial",
+        "toSceneName": "lvl_Tutorial",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Grove of Spirits Door",
+        "endingRegion": "Door to Grove of Spirits",
+        "loadingZoneId": "sdoor_tutorial",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_Tutorial"
+    },
+    {
+        "startingRegion": "Door to Lost Cemetery",
+        "endingRegion": "Lost Cemetery Door",
+        "loadingZoneId": "sdoor_graveyard",
+        "toSceneName": "lvl_Graveyard",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Lost Cemetery Door",
+        "endingRegion": "Door to Lost Cemetery",
+        "loadingZoneId": "sdoor_graveyard",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_Graveyard"
+    },
+    {
+        "startingRegion": "Door to Estate of the Urn Witch",
+        "endingRegion": "Estate of the Urn Witch Door",
+        "loadingZoneId": "sdoor_gardens",
+        "toSceneName": "lvl_GrandmaGardens",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Estate of the Urn Witch Door",
+        "endingRegion": "Door to Estate of the Urn Witch",
+        "loadingZoneId": "sdoor_gardens",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_GrandmaGardens"
+    },
+    {
+        "startingRegion": "Door to Ceramic Manor",
+        "endingRegion": "Ceramic Manor Door",
+        "loadingZoneId": "sdoor_mansion",
+        "toSceneName": "lvl_GrandmaMansion",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Ceramic Manor Door",
+        "endingRegion": "Door to Ceramic Manor",
+        "loadingZoneId": "sdoor_mansion",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_GrandmaMansion"
+    },
+    {
+        "startingRegion": "Door to Inner Furnace",
+        "endingRegion": "Inner Furnace Door",
+        "loadingZoneId": "sdoor_basementromp",
+        "toSceneName": "lvl_GrandmaBasement",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Inner Furnace Door",
+        "endingRegion": "Door to Inner Furnace",
+        "loadingZoneId": "sdoor_basementromp",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_GrandmaBasement"
+    },
+    {
+        "startingRegion": "Door to the Urn Witch's Laboratory",
+        "endingRegion": "The Urn Witch's Laboratory Door",
+        "loadingZoneId": "sdoor_grandmaboss",
+        "toSceneName": "boss_grandma",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "The Urn Witch's Laboratory Door",
+        "endingRegion": "Door to the Urn Witch's Laboratory",
+        "loadingZoneId": "sdoor_grandmaboss",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "boss_grandma"
+    },
+    {
+        "startingRegion": "Door to Overgrown Ruins",
+        "endingRegion": "Overgrown Ruins Door",
+        "loadingZoneId": "sdoor_forest",
+        "toSceneName": "lvl_Forest",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Overgrown Ruins Door",
+        "endingRegion": "Door to Overgrown Ruins",
+        "loadingZoneId": "sdoor_forest",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_Forest"
+    },
+    {
+        "startingRegion": "Door to Mushroom Dungeon",
+        "endingRegion": "Mushroom Dungeon Door",
+        "loadingZoneId": "sdoor_forest_dung",
+        "toSceneName": "lvl_Forest",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Mushroom Dungeon Door",
+        "endingRegion": "Door to Mushroom Dungeon",
+        "loadingZoneId": "sdoor_forest_dung",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_Forest"
+    },
+    {
+        "startingRegion": "Door to Flooded Fortress",
+        "endingRegion": "Flooded Fortress Door",
+        "loadingZoneId": "sdoor_swamp",
+        "toSceneName": "lvl_Swamp",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Flooded Fortress Door",
+        "endingRegion": "Door to Flooded Fortress",
+        "loadingZoneId": "sdoor_swamp",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_Swamp"
+    },
+    {
+        "startingRegion": "Door to Throne of the Frog King",
+        "endingRegion": "Throne of the Frog King Door",
+        "loadingZoneId": "sdoor_frogboss",
+        "toSceneName": "boss_frog",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Throne of the Frog King Door",
+        "endingRegion": "Door to Throne of the Frog King",
+        "loadingZoneId": "sdoor_frogboss",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "boss_frog"
+    },
+    {
+        "startingRegion": "Door to Stranded Sailor",
+        "endingRegion": "Stranded Sailor Door",
+        "loadingZoneId": "sdoor_sailor",
+        "toSceneName": "lvl_SailorMountain",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Stranded Sailor Door",
+        "endingRegion": "Door to Stranded Sailor",
+        "loadingZoneId": "sdoor_sailor",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_SailorMountain"
+    },
+    {
+        "startingRegion": "Door to Castle Lockstone",
+        "endingRegion": "Castle Lockstone Door",
+        "loadingZoneId": "sdoor_fortress",
+        "toSceneName": "lvl_frozenfortress",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Castle Lockstone Door",
+        "endingRegion": "Door to Castle Lockstone",
+        "loadingZoneId": "sdoor_fortress",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_frozenfortress"
+    },
+    {
+        "startingRegion": "Door to Camp of the Free Crows",
+        "endingRegion": "Camp of the Free Crows Door",
+        "loadingZoneId": "sdoor_covenant",
+        "toSceneName": "lvlConnect_Fortress_Mountaintops",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Camp of the Free Crows Door",
+        "endingRegion": "Door to Camp of the Free Crows",
+        "loadingZoneId": "sdoor_covenant",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvlConnect_Fortress_Mountaintops"
+    },
+    {
+        "startingRegion": "Door to Old Watchtowers",
+        "endingRegion": "Old Watchtowers Door",
+        "loadingZoneId": "sdoor_mountaintops",
+        "toSceneName": "lvl_Mountaintops",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Old Watchtowers Door",
+        "endingRegion": "Door to Old Watchtowers",
+        "loadingZoneId": "sdoor_mountaintops",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "lvl_Mountaintops"
+    },
+    {
+        "startingRegion": "Door to Betty's Lair",
+        "endingRegion": "Betty's Lair Door",
+        "loadingZoneId": "sdoor_betty",
+        "toSceneName": "boss_betty",
+        "originSceneName": "lvl_HallOfDoors"
+    },
+    {
+        "startingRegion": "Betty's Lair Door",
+        "endingRegion": "Door to Betty's Lair",
+        "loadingZoneId": "sdoor_betty",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": "boss_betty"
+    },
+    {
+        "startingRegion": "Grove of Spirits Exit to Lost Cemetery",
+        "endingRegion": "Lost Cemetery Exit to Grove of Spirits",
+        "loadingZoneId": "tdoor_gy",
+        "toSceneName": "lvl_Graveyard",
+        "originSceneName": "lvl_Tutorial"
+    },
+    {
+        "startingRegion": "Lost Cemetery Exit to Grove of Spirits",
+        "endingRegion": "Grove of Spirits Exit to Lost Cemetery",
+        "loadingZoneId": "tdoor_gy",
+        "toSceneName": "lvl_Tutorial",
+        "originSceneName": "lvl_Graveyard"
+    },
+    {
+        "startingRegion": "Lost Cemetery Exit to Crypt",
+        "endingRegion": "Crypt Exit to Lost Cemetery",
+        "loadingZoneId": "d_graveyardtocrypt",
+        "toSceneName": "lvlConnect_Graveyard_Gardens",
+        "originSceneName": "lvl_Graveyard"
+    },
+    {
+        "startingRegion": "Crypt Exit to Lost Cemetery",
+        "endingRegion": "Lost Cemetery Exit to Crypt",
+        "loadingZoneId": "d_graveyardtocrypt",
+        "toSceneName": "lvl_Graveyard",
+        "originSceneName": "lvlConnect_Graveyard_Gardens"
+    },
+    {
+        "startingRegion": "Crypt Exit to Estate of the Urn Witch",
+        "endingRegion": "Estate of the Urn Witch Exit to Crypt",
+        "loadingZoneId": "d_crypttogardens",
+        "toSceneName": "lvl_GrandmaGardens",
+        "originSceneName": "lvlConnect_Graveyard_Gardens"
+    },
+    {
+        "startingRegion": "Estate of the Urn Witch Exit to Crypt",
+        "endingRegion": "Crypt Exit to Estate of the Urn Witch",
+        "loadingZoneId": "d_crypttogardens",
+        "toSceneName": "lvlConnect_Graveyard_Gardens",
+        "originSceneName": "lvl_GrandmaGardens"
+    },
+    {
+        "startingRegion": "Estate of the Urn Witch Exit to Ceramic Manor",
+        "endingRegion": "Ceramic Manor Exit to Estate of the Urn Witch",
+        "loadingZoneId": "d_gardenstomansion",
+        "toSceneName": "lvl_GrandmaMansion",
+        "originSceneName": "lvl_GrandmaGardens"
+    },
+    {
+        "startingRegion": "Ceramic Manor Exit to Estate of the Urn Witch",
+        "endingRegion": "Estate of the Urn Witch Exit to Ceramic Manor",
+        "loadingZoneId": "d_gardenstomansion",
+        "toSceneName": "lvl_GrandmaGardens",
+        "originSceneName": "lvl_GrandmaMansion"
+    },
+    {
+        "startingRegion": "Ceramic Manor Exit to Furnace Observation Rooms",
+        "endingRegion": "Furnace Observation Rooms Exit to Ceramic Manor",
+        "loadingZoneId": "d_mansiontobasement",
+        "toSceneName": "lvlConnect_Mansion_Basement",
+        "originSceneName": "lvl_GrandmaMansion"
+    },
+    {
+        "startingRegion": "Furnace Observation Rooms Exit to Ceramic Manor",
+        "endingRegion": "Ceramic Manor Exit to Furnace Observation Rooms",
+        "loadingZoneId": "d_mansiontobasement",
+        "toSceneName": "lvl_GrandmaMansion",
+        "originSceneName": "lvlConnect_Mansion_Basement"
+    },
+    {
+        "startingRegion": "Furnace Observation Rooms Exit to Inner Furnace",
+        "endingRegion": "Inner Furnace Exit to Furnace Observation Rooms",
+        "loadingZoneId": "d_basementtoromp",
+        "toSceneName": "lvl_GrandmaBasement",
+        "originSceneName": "lvlConnect_Mansion_Basement"
+    },
+    {
+        "startingRegion": "Inner Furnace Exit to Furnace Observation Rooms",
+        "endingRegion": "Furnace Observation Rooms Exit to Inner Furnace",
+        "loadingZoneId": "d_basementtoromp",
+        "toSceneName": "lvlConnect_Mansion_Basement",
+        "originSceneName": "lvl_GrandmaBasement"
+    },
+    {
+        "startingRegion": "Inner Furnace Exit to the Urn Witch's Laboratory",
+        "endingRegion": "The Urn Witch's Laboratory Exit to Inner Furnace",
+        "loadingZoneId": "d_basementtoboss",
+        "toSceneName": "boss_grandma",
+        "originSceneName": "lvl_GrandmaBasement"
+    },
+    {
+        "startingRegion": "The Urn Witch's Laboratory Exit to Inner Furnace",
+        "endingRegion": "Inner Furnace Exit to the Urn Witch's Laboratory",
+        "loadingZoneId": "d_basementtoboss",
+        "toSceneName": "lvl_GrandmaBasement",
+        "originSceneName": "boss_grandma"
+    },
+    {
+        "startingRegion": "Lost Cemetery Exit to Stranded Sailor Caves",
+        "endingRegion": "Stranded Sailor Caves Exit to Lost Cemetery",
+        "loadingZoneId": "d_graveyardtosailorcaves",
+        "toSceneName": "lvlconnect_graveyard_sailor",
+        "originSceneName": "lvl_graveyard"
+    },
+    {
+        "startingRegion": "Stranded Sailor Caves Exit to Lost Cemetery",
+        "endingRegion": "Lost Cemetery Exit to Stranded Sailor Caves",
+        "loadingZoneId": "d_graveyardtosailorcaves",
+        "toSceneName": "lvl_graveyard",
+        "originSceneName": "lvlconnect_graveyard_sailor"
+    },
+    {
+        "startingRegion": "Stranded Sailor Caves Exit to Stranded Sailor",
+        "endingRegion": "Stranded Sailor Exit to Stranded Sailor Caves",
+        "loadingZoneId": "d_connecttosailor",
+        "toSceneName": "lvl_sailormountain",
+        "originSceneName": "lvlconnect_graveyard_sailor"
+    },
+    {
+        "startingRegion": "Stranded Sailor Exit to Stranded Sailor Caves",
+        "endingRegion": "Stranded Sailor Caves Exit to Stranded Sailor",
+        "loadingZoneId": "d_connecttosailor",
+        "toSceneName": "lvlconnect_graveyard_sailor",
+        "originSceneName": "lvl_sailormountain"
+    },
+    {
+        "startingRegion": "Stranded Sailor Exit to Castle Lockstone",
+        "endingRegion": "Castle Lockstone Exit to Stranded Sailor",
+        "loadingZoneId": "d_sailortofortress",
+        "toSceneName": "lvl_frozenfortress",
+        "originSceneName": "lvl_sailormountain"
+    },
+    {
+        "startingRegion": "Castle Lockstone Exit to Stranded Sailor",
+        "endingRegion": "Stranded Sailor Exit to Castle Lockstone",
+        "loadingZoneId": "d_sailortofortress",
+        "toSceneName": "lvl_sailormountain",
+        "originSceneName": "lvl_frozenfortress"
+    },
+    {
+        "startingRegion": "Castle Lockstone Exit to Camp of the Free Crows",
+        "endingRegion": "Camp of the Free Crows Exit to Castle Lockstone",
+        "loadingZoneId": "d_fortresstoroof",
+        "toSceneName": "lvlConnect_Fortress_Mountaintops",
+        "originSceneName": "lvl_frozenfortress"
+    },
+    {
+        "startingRegion": "Camp of the Free Crows Exit to Castle Lockstone",
+        "endingRegion": "Castle Lockstone Exit to Camp of the Free Crows",
+        "loadingZoneId": "d_fortresstoroof",
+        "toSceneName": "lvl_frozenfortress",
+        "originSceneName": "lvlConnect_Fortress_Mountaintops"
+    },
+    {
+        "startingRegion": "Camp of the Free Crows Exit to Old Watchtowers",
+        "endingRegion": "Old Watchtowers Exit to Camp of the Free Crows",
+        "loadingZoneId": "d_CrowCavestoMountaintops",
+        "toSceneName": "lvl_mountaintops",
+        "originSceneName": "lvlConnect_Fortress_Mountaintops"
+    },
+    {
+        "startingRegion": "Old Watchtowers Exit to Camp of the Free Crows",
+        "endingRegion": "Camp of the Free Crows Exit to Old Watchtowers",
+        "loadingZoneId": "d_CrowCavestoMountaintops",
+        "toSceneName": "lvlConnect_Fortress_Mountaintops",
+        "originSceneName": "lvl_mountaintops"
+    },
+    {
+        "startingRegion": "Old Watchtowers Exit to Betty's Lair",
+        "endingRegion": "Betty's Lair Exit to Old Watchtowers",
+        "loadingZoneId": "d_mountaintopstobetty",
+        "toSceneName": "boss_betty",
+        "originSceneName": "lvl_mountaintops"
+    },
+    {
+        "startingRegion": "Betty's Lair Exit to Old Watchtowers",
+        "endingRegion": "Old Watchtowers Exit to Betty's Lair",
+        "loadingZoneId": "d_mountaintopstobetty",
+        "toSceneName": "lvl_mountaintops",
+        "originSceneName": "boss_betty"
+    },
+    {
+        "startingRegion": "Lost Cemetery Exit to Overgrown Ruins",
+        "endingRegion": "Overgrown Ruins Exit to Lost Cemetery",
+        "loadingZoneId": "forest_buggy",
+        "toSceneName": "lvl_Forest",
+        "originSceneName": "lvl_Graveyard"
+    },
+    {
+        "startingRegion": "Overgrown Ruins Exit to Lost Cemetery",
+        "endingRegion": "Lost Cemetery Exit to Overgrown Ruins",
+        "loadingZoneId": "forest_buggy",
+        "toSceneName": "lvl_Graveyard",
+        "originSceneName": "lvl_Forest"
+    },
+    {
+        "startingRegion": "Mushroom Dungeon Exit to Flooded Fortress",
+        "endingRegion": "Flooded Fortress Exit to Mushroom Dungeon",
+        "loadingZoneId": "d_swamp_enter",
+        "toSceneName": "lvl_Swamp",
+        "originSceneName": "lvl_Forest"
+    },
+    {
+        "startingRegion": "Flooded Fortress Exit to Mushroom Dungeon",
+        "endingRegion": "Mushroom Dungeon Exit to Flooded Fortress",
+        "loadingZoneId": "d_swamp_enter",
+        "toSceneName": "lvl_Forest",
+        "originSceneName": "lvl_Swamp"
+    },
+    {
+        "startingRegion": "Flooded Fortress Exit to Throne of the Frog King",
+        "endingRegion": "Throne of the Frog King Exit to Flooded Fortress",
+        "loadingZoneId": "d_frog_boss",
+        "toSceneName": "boss_frog",
+        "originSceneName": "lvl_Swamp"
+    },
+    {
+        "startingRegion": "Throne of the Frog King Exit to Flooded Fortress",
+        "endingRegion": "Flooded Fortress Exit to Throne of the Frog King",
+        "loadingZoneId": "d_frog_boss",
+        "toSceneName": "lvl_Swamp",
+        "originSceneName": "boss_frog"
+    },
+    {
+        "startingRegion": "Ceramic Manor Ancient Door",
+        "endingRegion": "Fire Avarice",
+        "loadingZoneId": "hod_anc_mansion",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": ""
+    },
+    {
+        "startingRegion": "Castle Lockstone Ancient Door",
+        "endingRegion": "Hookshot Avarice",
+        "loadingZoneId": "hod_anc_fortress",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": ""
+    },
+    {
+        "startingRegion": "Mushroom Dungeon Ancient Door",
+        "endingRegion": "Bomb Avarice",
+        "loadingZoneId": "hod_anc_forest",
+        "toSceneName": "lvl_HallOfDoors",
+        "originSceneName": ""
+    }
+]

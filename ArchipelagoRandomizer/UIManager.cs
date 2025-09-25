@@ -77,12 +77,12 @@ internal class UIManager
 		}
 		catch (Exception e)
 		{
-			Plugin.Logger.LogInfo(e.Message);
+			Logger.Log(e.Message);
 		}
 		if (UpdateAvailable)
 		{
 			PathUtil.GetByPath("TitleScreen", "UI_PauseCanvas").AddComponent<NotificationDisplay>();
-			Plugin.Logger.LogInfo("Added notification to scene");
+			Logger.Log("Added notification to scene");
 		}
 
 		static bool IsNewerVersion(string newVersion)

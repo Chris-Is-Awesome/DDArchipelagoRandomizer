@@ -1,4 +1,6 @@
-﻿namespace DDoor.ArchipelagoRandomizer;
+﻿using System.Collections.Generic;
+
+namespace DDoor.ArchipelagoRandomizer;
 
 static class Logger
 {
@@ -15,5 +17,12 @@ static class Logger
 	public static void LogError(string message)
 	{
 		Plugin.Logger.LogError(message);
+	}
+	public static void LogList<T>(List<T> list)
+	{
+		foreach (T item in list)
+		{
+			Plugin.Logger.LogDebug(item.ToString());
+		}
 	}
 }

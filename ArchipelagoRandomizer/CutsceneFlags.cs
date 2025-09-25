@@ -1,5 +1,6 @@
 using DDoor.AddUIToOptionsMenu;
 using HarmonyLib;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -82,12 +83,6 @@ public static class CutsceneFlags
                 }
                 skippedCutscenes = true;
             }
-        }
-
-        [HarmonyPrefix, HarmonyPatch(typeof(GameSave), nameof(GameSave.SetKeyState))]
-        private static void ReportKey(string id)
-        {
-            Plugin.Logger.LogInfo("Key Set in Save: " + id);
         }
     }
 }
