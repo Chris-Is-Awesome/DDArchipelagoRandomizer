@@ -67,6 +67,10 @@ internal class ItemRandomizer : MonoBehaviour
 		if (TrapManager.Instance.traps.ContainsKey(itemName))
 		{
 			TrapManager.Instance.trapQueue.Enqueue(TrapManager.Instance.traps[itemName]);
+			if (Archipelago.Instance.apConfig.TrapLinkEnabled)
+			{
+				TrapManager.Instance.SendTrapLink(itemName);
+			}
 			Logger.Log($"Received {itemName} from {playerName}");
 			IC.CountableInventoryItem tempItem = new IC.CountableInventoryItem
 			{

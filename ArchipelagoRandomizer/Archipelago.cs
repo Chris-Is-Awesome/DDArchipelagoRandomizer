@@ -362,6 +362,17 @@ internal class Archipelago
 		return apConfig.DeathLinkEnabled;
 	}
 
+	internal void ToggleTrapLink(bool newValue)
+	{
+		apConfig.TrapLinkEnabled = newValue;
+		apConfig.SaveAPConfig();
+	}
+
+	internal bool InitializeTrapLinkToggle()
+	{
+		return apConfig.TrapLinkEnabled;
+	}
+
 	internal void ToggleItemHandling(bool newValue)
 	{
 		apConfig.ReceiveItemsFast = newValue;
@@ -471,6 +482,7 @@ internal class Archipelago
 	{
 		private static readonly string apConfigPath = $"{Application.persistentDataPath}/Archipelago_config.json";
 		public bool DeathLinkEnabled { get; set; } = false;
+		public bool TrapLinkEnabled { get; set; } = false;
 		public bool ReceiveItemsFast { get; set; } = false;
 		public bool SkipCutscenes { get; set; } = false;
 
