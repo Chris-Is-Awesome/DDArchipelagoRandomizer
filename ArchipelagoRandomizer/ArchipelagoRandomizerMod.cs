@@ -69,7 +69,7 @@ internal class ArchipelagoRandomizerMod
 			{
 				archipelagoRandomizer = new GameObject("ArchipelagoRandomizer");
 				ItemRandomizer itemRando = archipelagoRandomizer.AddComponent<ItemRandomizer>();
-				EnemyRandomizer enemyRando = archipelagoRandomizer.AddComponent<EnemyRandomizer>();
+				EnemyRandomizer enemyRando = Archipelago.Instance.apConfig.EnemyRando ? archipelagoRandomizer.AddComponent<EnemyRandomizer>() : null;
 				GoalModifications goalMods = archipelagoRandomizer.AddComponent<GoalModifications>();
 				MapManager mapManager = archipelagoRandomizer.AddComponent<MapManager>();
 				TrapManager trapManager = archipelagoRandomizer.AddComponent<TrapManager>();

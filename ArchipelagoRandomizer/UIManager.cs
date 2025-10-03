@@ -40,6 +40,7 @@ internal class UIManager
 		AddDeathlinkToggle();
 		AddItemHandlingToggle();
 		AddCutsceneToggle();
+		AddEnemyRandoToggle();
 		IngameUIManager.RetriggerModifyingOptionsMenuTitleScreen();
 	}
 
@@ -58,6 +59,12 @@ internal class UIManager
 	private void AddCutsceneToggle()
 	{
 		OptionsToggle optionsToggle = new(itemText: "SKIP CUTSCENES", gameObjectName: "ARCHIPELAGO_UI_ToggleSkipCutscenes", id: "ToggleSkipCutscenes", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen], toggleAction: Archipelago.Instance.ToggleSkipCutscenes, toggleValueInitializer: Archipelago.Instance.InitializeSkipCutscenes, contextText: "BUTTON:CONFIRM Toggle Skip Cutscenes BUTTON:BACK Back");
+		IngameUIManager.AddOptionsMenuItem(optionsToggle);
+	}
+
+	private void AddEnemyRandoToggle()
+	{
+		OptionsToggle optionsToggle = new(itemText: "ENEMY RANDOMIZER", gameObjectName: "ARCHIPELAGO_UI_ToggleEnnemyRando", id: "ToggleEnnemyRando", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen], toggleAction: Archipelago.Instance.ToggleEnemyRando, toggleValueInitializer: Archipelago.Instance.InitializeEnemyRando, contextText: "BUTTON:CONFIRM Toggle Enemy Ranndomizer BUTTON:BACK Back");
 		IngameUIManager.AddOptionsMenuItem(optionsToggle);
 	}
 

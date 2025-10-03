@@ -22,6 +22,7 @@ internal class Preloader : IDisposable
 
 	public static Preloader Instance => instance;
 	public static bool IsPreloading { get; private set; }
+	private static bool WillPreload => Archipelago.Instance.IsConnected() && Instance.objectsToCache.Count > 0;
 
 	private Preloader()
 	{
@@ -73,6 +74,8 @@ internal class Preloader : IDisposable
 
 	public void StartPreload(Action onDone = null)
 	{
+		if (!WillPreload) return;
+
 		IsPreloading = true;
 		savedScene = GameSave.GetSaveData().GetSpawnScene();
 		Logger.Log("Starting preload...");
@@ -191,8 +194,7 @@ internal class Preloader : IDisposable
 		[HarmonyPatch(typeof(SaveSlot), nameof(SaveSlot.LoadSave))]
 		private static bool NewGamePatch(SaveSlot __instance)
 		{
-			if (!Archipelago.Instance.IsConnected())
-				return true;
+			if (!WillPreload) return true;
 
 			__instance.useSaveFile();
 			return false;
@@ -210,8 +212,7 @@ internal class Preloader : IDisposable
 		[HarmonyPatch(typeof(GameSceneManager), nameof(GameSceneManager.ReturnToTitle))]
 		private static void ReturnToTitlePatch()
 		{
-			if (!Archipelago.Instance.IsConnected())
-				return;
+			if (Instance.cacheHolder == null) return;
 
 			Instance.cachedObjects.Clear();
 			Instance.objectsToCache.Clear();

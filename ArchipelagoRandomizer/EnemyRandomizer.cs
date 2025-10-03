@@ -213,42 +213,34 @@ internal class EnemyRandomizer : MonoBehaviour
 
 				foreach (EnemyData enemyData in dataForEnemies)
 				{
-					GameObject foundEnemy = null;
-
-					foreach (AI_Brain brain in Resources.FindObjectsOfTypeAll<AI_Brain>())
-					{
-						if (brain.name == enemyData.name)
-						{
-							foundEnemy = brain.gameObject;
-							foundEnemy.SetActive(true);
-
-							// If MageFire, cache the fire column pool so it can attack
-							if (enemyData.type == EnemyType.MageFire)
-							{
-								GameObject fireColumnPool = GameObject.Find("_FIRE_COLUMN_POOL");
-								Preloader.CacheObject(fireColumnPool);
-							}
-
-							// Modify silent servants
-							if (foundEnemy.TryGetComponent(out AI_SilentServant ai))
-							{
-								DestroyImmediate(ai.GetComponentInChildren<CameraFocusObjectLimited>(true).gameObject);
-								ai.hasHookshot = false;
-
-								if (enemyData.type == EnemyType.ServantAll)
-								{
-									ai.hasAllPowers = false;
-									ai.hasBombs = true;
-									ai.hasFire = true;
-								}
-							}
-						}
-					}
+					GameObject foundEnemy = Resources.FindObjectsOfTypeAll<AI_Brain>().FirstOrDefault(x => x.name == enemyData.name)?.gameObject;
 
 					if (foundEnemy == null)
 					{
 						Logger.LogError($"During enemy rando preload, failed to find enemy\n    {enemyData.name}\n    in {sceneName}");
 						continue;
+					}
+
+					foundEnemy.SetActive(true);
+
+					// If MageFire, cache the fire column pool so it can attack
+					if (enemyData.type == EnemyType.MageFire)
+					{
+						Preloader.CacheObject(GameObject.Find("_FIRE_COLUMN_POOL"));
+					}
+
+					// Modify silent servants
+					if (foundEnemy.TryGetComponent(out AI_SilentServant ai))
+					{
+						DestroyImmediate(ai.GetComponentInChildren<CameraFocusObjectLimited>(true).gameObject);
+						ai.hasHookshot = false;
+
+						if (enemyData.type == EnemyType.ServantAll)
+						{
+							ai.hasAllPowers = false;
+							ai.hasBombs = true;
+							ai.hasFire = true;
+						}
 					}
 
 					enemies.Add(foundEnemy);
@@ -289,6 +281,8 @@ internal class EnemyRandomizer : MonoBehaviour
 
 	private void SceneLoaded(Scene scene, LoadSceneMode _)
 	{
+		if (SceneManager.GetActiveScene().name == "TitleScreen") return;
+
 		hasSpawnedFireColumn = false;
 		ReplaceEnemiesInScene();
 	}
