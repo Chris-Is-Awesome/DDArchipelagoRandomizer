@@ -384,6 +384,17 @@ internal class Archipelago
 		return apConfig.SkipCutscenes;
 	}
 
+	internal void ToggleEnemyRando(bool newValue)
+	{
+		apConfig.EnemyRando = newValue;
+		apConfig.SaveAPConfig();
+	}
+
+	internal bool InitializeEnemyRando()
+	{
+		return apConfig.EnemyRando;
+	}
+
 	private APSaveData GetAPSaveDataForSlot(int saveIndex)
 	{
 		if (saveIndex > apSaveDataSlots.Length || saveIndex <= 0)
@@ -473,6 +484,7 @@ internal class Archipelago
 		public bool DeathLinkEnabled { get; set; } = false;
 		public bool ReceiveItemsFast { get; set; } = false;
 		public bool SkipCutscenes { get; set; } = false;
+		public bool EnemyRando { get; set; } = false;
 
 		internal void SaveAPConfig()
 		{
