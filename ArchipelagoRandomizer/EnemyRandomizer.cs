@@ -78,7 +78,9 @@ internal class EnemyRandomizer : MonoBehaviour
 	private Dictionary<string, EnemyData[]> enemiesToCache;
 	private readonly Dictionary<EnemyType, EnemyData> enemyTypeLookup = new();
 	private readonly Dictionary<EnemyType, ConfigEntry<bool>> enemyTypeEnabled = [];
-	private List<string> enemiesToNotReplace;
+	private List<string> enemiesToNotReplaceOld;
+	//private Dictionary<string, Vector3> enemiesToNotReplace;
+	private List<NoReplaceData> enemiesToNotReplace;
 	private bool hasSpawnedFireColumn;
 
 	public static EnemyRandomizer Instance => instance;
@@ -164,23 +166,19 @@ internal class EnemyRandomizer : MonoBehaviour
 		};
 		enemiesToNotReplace = new()
 		{
-			"redeemer_BOSS",
-			"redeemer_cutscene",
-			"BOSS_GraveDigger",
-			"_FORESTMOTHER_BOSS",
-			"BOSS_lord_of_doors NEW",
-			"BOSS_lord_of_doors_Betty",
-			"BOSS_lord_of_doors_Garden",
-			"lord_of_doors",
-			"lord_of_doorsOLD",
-			"BOSS_lord_of_doors_Forest",
-			"grandma",
-			"oldfrog",
-			"FROG_BOSS_FAT",
-			"FROG_BOSS_MAIN",
-			"betty_boss",
-			"OLD_CROW_BOSS(old)",
-			"old_crow_boss_fbx",
+			new NoReplaceData { scene = "lvlconnect_Mansion_Basement" }, // Excludes enemies in the glass vials
+			new NoReplaceData { scene = "lvl_GrandmaBasement", parentName = "GameObject" }, // Excludes enemies in the glass vials
+			new NoReplaceData { scene = "lvl_SilentServant_Fight" },
+			new NoReplaceData { scene = "lvl_Graveyard", name = "redeemer_BOSS" },
+			new NoReplaceData { scene = "lvl_Graveyard", name = "redeemer_cutscene" },
+			new NoReplaceData { scene = "lvl_Graveyard", name = "BOSS_GraveDigger" },
+			new NoReplaceData { scene = "lvl_Tutorial" },
+			new NoReplaceData { scene = "lvl_HallOfDoors_BOSSFIGHT" },
+			new NoReplaceData { scene = "boss_betty" },
+			new NoReplaceData { scene = "lvl_Arena" },
+			new NoReplaceData { scene = "boss_Grandma" },
+			new NoReplaceData { scene = "boss_Frog" },
+			new NoReplaceData { scene = "OldCrowVoid" },
 		};
 
 		// Setup enemyType -> EnemyData lookup dict
@@ -300,75 +298,122 @@ internal class EnemyRandomizer : MonoBehaviour
 	{
 		Stopwatch sw = Stopwatch.StartNew();
 		Scene scene = SceneManager.GetActiveScene();
+		int replacementCount = 0;
 
 		foreach (GameObject rootObj in scene.GetRootGameObjects())
 		{
 			foreach (Component comp in rootObj.GetComponentsInChildren<Component>(true))
 			{
-				GameObject replacement = null;
+				GameObject replacement;
 
 				switch (comp)
 				{
 					// Replace enemies that don't spawn from spawners
 					case AI_Brain brain:
-						// Don't replace silent servants because there's no good way to trigger
-						// the death cutscene afterwards, so player gets stuck and gets no item
-						if (brain is AI_SilentServant)
-							break;
+						if (TryGetEnemyReplacement(comp, out replacement))
+						{
+							Vector3 enemyPos = brain.transform.position;
+							Transform enemyParent = brain.transform.parent;
+							Destroy(brain.gameObject);
+							GameObject newEnemy = Instantiate(replacement, enemyParent);
+							newEnemy.transform.position = enemyPos;
+						}
 
-						replacement = GetEnemyReplacement(comp);
-
-						if (replacement == null)
-							break;
-
-						Vector3 enemyPos = brain.transform.position;
-						Transform enemyParent = brain.transform.parent;
-						Destroy(brain.gameObject);
-						GameObject newEnemy = Instantiate(replacement, enemyParent);
-						newEnemy.transform.position = enemyPos;
 						break;
 					// Replace enemies that spawn from spawners
 					case WaveEnemy wave:
-						replacement = GetEnemyReplacement(comp);
+						if (TryGetEnemyReplacement(comp, out replacement))
+						{
+							wave.prefab = replacement;
+						}
 
-						if (replacement == null)
-							break;
-
-						wave.prefab = replacement;
 						break;
 					// Replace enemies that spawn from eggs (Lurkers)
 					case LurkerEgg egg:
-						replacement = GetEnemyReplacement(comp);
+						if (TryGetEnemyReplacement(comp, out replacement))
+						{
+							egg.contentsPrefab = replacement;
+						}
 
-						if (replacement == null)
-							break;
-
-						egg.contentsPrefab = replacement;
 						break;
+					default:
+						continue;
+				}
+
+				if (replacement != null)
+				{
+					replacementCount++;
+					Logger.Log($"Replaced {comp.name} with {replacement.name}!");
 				}
 			}
 		}
 
 		sw.Stop();
-		Logger.Log($"Took {sw.ElapsedMilliseconds}ms to replace all enemies in {scene.name}");
+		
+		if (replacementCount > 0)
+		{
+			Logger.Log($"Took {sw.ElapsedMilliseconds}ms to replace {replacementCount} enemies in {scene.name}");
+		}
 	}
 
-	private GameObject GetEnemyReplacement(Component comp)
+	private bool ShouldReplaceEnemy(Component comp)
 	{
-		string enemyName = comp switch
+		foreach (NoReplaceData data in enemiesToNotReplace)
 		{
-			AI_Brain brain => brain.name,
-			WaveEnemy wave => wave.prefab.name,
-			LurkerEgg egg => egg.contentsPrefab.name,
-			_ => ""
-		};
+			string scene = SceneManager.GetActiveScene().name;
 
-		// Ignore exclusions
-		if (enemiesToNotReplace.Contains(enemyName))
-			return null;
+			// Scene must match
+			if (data.scene != scene)
+				continue;
 
-		GameObject randomEnemy = GetRandomEnemy();
-		return randomEnemy;
+			if (data.brainType == null && data.position == null && string.IsNullOrEmpty(data.parentName) && string.IsNullOrEmpty(data.name))
+			{
+				Logger.Log($"Not replacing {comp.name} because scene {scene} is excluded.");
+				return false;
+			}
+
+			// Exclude based on brain type
+			if (data.brainType != null && data.brainType.IsInstanceOfType(comp))
+			{
+				Logger.Log($"Not replacing {comp.name} because enemy brain type is excluded.");
+				return false;
+			}
+
+			// Exclude based on parent
+			if (!string.IsNullOrEmpty(data.parentName) && comp.transform.parent != null && comp.transform.parent.name == data.parentName)
+			{
+				Logger.Log($"Not replacing {comp.name} because enemy parent is excluded.");
+				return false;
+			}
+
+			// Exclude based on position
+			if (data.position != null && comp.transform.position == data.position)
+			{
+				Logger.Log($"Not replacing {comp.name} because enemy position is excluded.");
+				return false;
+			}
+
+			// Exclude based on enemy name
+			if (!string.IsNullOrEmpty(data.name) && comp.name == data.name)
+			{
+				Logger.Log($"Not replacing {comp.name} because enemy name is excluded.");
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private bool TryGetEnemyReplacement(Component comp, out GameObject replacement)
+	{
+		if (!ShouldReplaceEnemy(comp))
+		{
+			replacement = null;
+			return false;
+		}
+
+		replacement = GetRandomEnemy();
+		return true;
 	}
 
 	private GameObject GetRandomEnemy()
@@ -448,6 +493,15 @@ internal class EnemyRandomizer : MonoBehaviour
 			Tier5 = 1,
 		}
 
+	}
+
+	private struct NoReplaceData
+	{
+		public required string scene;
+		public string name;
+		public Vector3? position;
+		public string parentName;
+		public Type brainType;
 	}
 
 	[HarmonyPatch]
