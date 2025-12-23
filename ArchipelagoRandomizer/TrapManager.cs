@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR;
 
 namespace DDoor.ArchipelagoRandomizer;
 
@@ -100,12 +101,12 @@ public class TrapManager : MonoBehaviour
 
 	private void OnEnable()
 	{
-		SceneManager.activeSceneChanged += OnSceneChanged;
+		SceneManager.sceneLoaded += OnSceneChanged;
 	}
 
 	private void OnDisable()
 	{
-		SceneManager.activeSceneChanged -= OnSceneChanged;
+		SceneManager.sceneLoaded -= OnSceneChanged;
 	}
 
 	private IEnumerator TrapHandler()
@@ -149,7 +150,7 @@ public class TrapManager : MonoBehaviour
 		}
 	}
 
-	private void OnSceneChanged(Scene _, Scene __)
+	private void OnSceneChanged(Scene _, LoadSceneMode __)
 	{
 		// Stop enemy invis coroutine
 		if (enemyInvisCoroutine != null)
@@ -194,9 +195,11 @@ public class TrapManager : MonoBehaviour
 		int enemyLayer = LayerMask.NameToLayer("Enemy");
 
 		// Get all active enemy meshes
-		List<SkinnedMeshRenderer> allEnemyMeshes = Resources.FindObjectsOfTypeAll<AI_Brain>()
+		List<SkinnedMeshRenderer> allEnemyMeshes = SceneManager.GetActiveScene()
+			.GetRootGameObjects()
+			.SelectMany(root => root.GetComponentsInChildren<AI_Brain>(true))
 			.Where(ai => ai.gameObject.layer == enemyLayer) // Checks for enemy layer
-			.SelectMany(ai => ai.GetComponentsInChildren<SkinnedMeshRenderer>()) // Gets all meshes (there can be many children with meshes)
+			.SelectMany(ai => ai.GetComponentsInChildren<SkinnedMeshRenderer>(true)) // Gets all meshes (there can be many children with meshes)
 			.Where(mesh => mesh.gameObject.activeSelf) // Gets only the active meshes
 			.ToList();
 
