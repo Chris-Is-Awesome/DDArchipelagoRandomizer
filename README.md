@@ -34,6 +34,8 @@ This is a work in progress Archipelago randomizer mod for Death's Door.
   * If Deathlink is on, you will send a Deathlink out when you die in game and die when you receive a deathlink from another game with Deathlink turned on.
 * Fast Items (Title Screen and In-Game Options Menus)
   * If Fast Items is on, then you will receive items as fast as the game will allow and notifications will be queued for viewing. If Fast Items is off, the items themselves will be queued for receipt.
+* Skip Cutscenes (Title Screen Options Menus)
+  * If Skip Cutscenes is on when a file is started, most skippable cutscenes will be skipped. If Skip Cutscenes is off, then only a limited number of cutscenes that can block progress will be skipped.
 
 ## Contributing
 

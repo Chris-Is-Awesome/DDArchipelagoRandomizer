@@ -70,9 +70,9 @@ public class MapManager : MonoBehaviour
 			return;
 
         float currentTime = Time.time;
-        PlayerCoords currentCoords = CurrentCoords();
         if (PlayerGlobal.instance)
         {
+            PlayerCoords currentCoords = CurrentCoords();
             if (currentTime >= lastSentTime + timeDelta)
             {
                 UpdateCoordinates(currentCoords);
