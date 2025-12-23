@@ -38,6 +38,7 @@ internal class UIManager
 	internal void AddOptionsMenuItems()
 	{
 		AddDeathlinkToggle();
+		AddTrapLinkToggle();
 		AddItemHandlingToggle();
 		AddCutsceneToggle();
 		IngameUIManager.RetriggerModifyingOptionsMenuTitleScreen();
@@ -46,6 +47,12 @@ internal class UIManager
 	private void AddDeathlinkToggle()
 	{
 		OptionsToggle optionsToggle = new(itemText: "DEATHLINK", gameObjectName: "ARCHIPELAGO_UI_ToggleDeathlink", id: "ToggleDeathlink", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen], toggleAction: Archipelago.Instance.ToggleDeathlink, toggleValueInitializer: Archipelago.Instance.InitializeDeathlinkToggle, contextText: "BUTTON:CONFIRM Toggle Deathlink BUTTON:BACK Back");
+		IngameUIManager.AddOptionsMenuItem(optionsToggle);
+	}
+
+	private void AddTrapLinkToggle()
+	{
+		OptionsToggle optionsToggle = new(itemText: "TRAPLINK", gameObjectName: "ARCHIPELAGO_UI_ToggleTrapLink", id: "ToggleTrapLink", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen], toggleAction: Archipelago.Instance.ToggleTrapLink, toggleValueInitializer: Archipelago.Instance.InitializeTrapLinkToggle, contextText: "BUTTON:CONFIRM Toggle TrapLink BUTTON:BACK Back");
 		IngameUIManager.AddOptionsMenuItem(optionsToggle);
 	}
 
