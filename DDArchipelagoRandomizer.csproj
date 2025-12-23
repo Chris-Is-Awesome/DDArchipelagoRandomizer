@@ -98,14 +98,6 @@
 	</Target>
 
 	<ItemGroup>
-	  <EditorConfigFiles Remove="D:\Files\Work\Hobbies\Modding\Death%27s Door\DDArchipelagoRandomizer\.editorconfig" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="D:\Files\Work\Hobbies\Modding\Death's Door\DDArchipelagoRandomizer\.editorconfig" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Update="Resources\Item Changer Icons\**">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>

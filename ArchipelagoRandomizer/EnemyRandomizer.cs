@@ -13,7 +13,7 @@ namespace DDoor.ArchipelagoRandomizer;
 
 internal class EnemyRandomizer : MonoBehaviour
 {
-	/* List of enemies that have been removed (kept as a reference in case they make a comeback
+	/* List of enemies that have been removed (kept as a reference in case they make a comeback)
 	 * 
 	 * _E_PLAGUE_KNIGHT_SlowFire
 	 *		Scene: lvl_SailorMountain
@@ -79,7 +79,6 @@ internal class EnemyRandomizer : MonoBehaviour
 	private readonly Dictionary<EnemyType, EnemyData> enemyTypeLookup = new();
 	private readonly Dictionary<EnemyType, ConfigEntry<bool>> enemyTypeEnabled = [];
 	private List<string> enemiesToNotReplaceOld;
-	//private Dictionary<string, Vector3> enemiesToNotReplace;
 	private List<NoReplaceData> enemiesToNotReplace;
 	private bool hasSpawnedFireColumn;
 
@@ -257,20 +256,6 @@ internal class EnemyRandomizer : MonoBehaviour
 		Preloader.Instance.OnPreloadDone -= AfterPreload;
 		SceneManager.sceneLoaded -= SceneLoaded;
 	}
-
-	//TODO: Remove this, as this is for quick testing before figuring out enemy replacements
-
-	//int index = 0;
-	//private void Update()
-	//{
-	//	if (Input.GetKeyDown("t"))
-	//	{
-	//		//SpawnEnemyAtPlayer((EnemyType)index);
-	//		//Logger.Log($"Spawned enemy: {(EnemyType)index}");
-	//		//SpawnEnemyAtPlayer(EnemyType.PlagueKnightSlowFire);
-	//		index++;
-	//	}
-	//}
 
 	private void AfterPreload()
 	{
