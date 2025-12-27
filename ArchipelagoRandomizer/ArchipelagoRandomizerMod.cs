@@ -1,8 +1,6 @@
-﻿using HarmonyLib;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using static DDoor.ArchipelagoRandomizer.Archipelago;
-using AGM = DDoor.AlternativeGameModes;
 
 namespace DDoor.ArchipelagoRandomizer;
 
@@ -69,6 +67,7 @@ internal class ArchipelagoRandomizerMod
 			{
 				archipelagoRandomizer = new GameObject("ArchipelagoRandomizer");
 				ItemRandomizer itemRando = archipelagoRandomizer.AddComponent<ItemRandomizer>();
+				EntranceRandomizer entranceRandomizer = archipelagoRandomizer.AddComponent<EntranceRandomizer>();
 				GoalModifications goalMods = archipelagoRandomizer.AddComponent<GoalModifications>();
 				MapManager mapManager = archipelagoRandomizer.AddComponent<MapManager>();
 				TrapManager trapManager = archipelagoRandomizer.AddComponent<TrapManager>();
