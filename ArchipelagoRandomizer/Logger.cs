@@ -1,23 +1,22 @@
-﻿using System.Collections.Generic;
-
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DDoor.ArchipelagoRandomizer;
 
-static class Logger
+public static class Logger
 {
-	public static void Log(string message)
+	public static void Log(object message)
 	{
 		Plugin.Logger.LogMessage(message);
 	}
 
-	public static void LogWarning(string message)
+	public static void LogWarning(object message)
 	{
 		Plugin.Logger.LogWarning(message);
 	}
 
-	public static void LogError(string message, bool includeTrace = true)
+	public static void LogError(object message, bool includeTrace = true)
 	{
 		Plugin.Logger.LogError(includeTrace ? message + "\n" + GetStackTrace() : message);
 	}

@@ -178,6 +178,7 @@ internal class EnemyRandomizer : MonoBehaviour
 			new NoReplaceData { scene = "boss_Grandma" },
 			new NoReplaceData { scene = "boss_Frog" },
 			new NoReplaceData { scene = "OldCrowVoid" },
+			new NoReplaceData { scene = "lvl_SilentServants" },
 		};
 
 		// Setup enemyType -> EnemyData lookup dict

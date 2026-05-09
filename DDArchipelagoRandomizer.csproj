@@ -5,7 +5,7 @@
 		<AssemblyTitle>Archipelago Randomizer</AssemblyTitle>
 		<Product>ArchipelagoRandomizer</Product>
 		<Description>An Archipelago multiworld client for Death's Door</Description>
-		<Version>0.2.1</Version>
+		<Version>0.3.3</Version>
 		<TargetFramework>net472</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<RestoreAdditionalProjectSources>
