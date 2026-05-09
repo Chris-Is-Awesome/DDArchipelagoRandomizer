@@ -322,6 +322,7 @@ internal class Archipelago
 		string forPlayer = itemInfo.Player.Name;
 		bool isForAnotherPlayer = itemInfo.Player != CurrentPlayer;
 		return new ItemRandomizer.ItemPlacement(item, location, forPlayer, isForAnotherPlayer);
+
 	}
 
 	private bool CanPlayerReceiveItems()
@@ -349,6 +350,29 @@ internal class Archipelago
             return;
         }
 		Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_map"] = map;
+    }
+
+	internal void StoreFoundEntrance(string newEntrance)
+    {
+		// Retrieves existing found entrances from DataStorage for same slot co-op, restarting save files, etc.
+		if (!IsConnected())
+		{
+			return;
+		}
+		JArray foundEntrances;
+		if (Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"] != null)
+		{
+			foundEntrances = Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"];
+		}
+		else
+		{
+			foundEntrances = JArray.FromObject(new List<string>());
+		}
+		if (!foundEntrances.Any(e => e.Value<string>() == newEntrance))
+		{
+			foundEntrances.Add(newEntrance);
+			Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"] = JArray.FromObject(foundEntrances);
+		}		
     }
 
 	internal void ToggleDeathlink(bool newValue)

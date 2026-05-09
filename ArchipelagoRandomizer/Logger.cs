@@ -1,4 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
+
+using System;
 using System.Linq;
 
 namespace DDoor.ArchipelagoRandomizer;
@@ -25,5 +27,12 @@ static class Logger
 		string stack = Environment.StackTrace;
 		string[] lines = stack.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 		return string.Join("\n", lines.Skip(3));
+	}
+	public static void LogList<T>(List<T> list)
+	{
+		foreach (T item in list)
+		{
+			Plugin.Logger.LogDebug(item.ToString());
+		}
 	}
 }
