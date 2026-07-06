@@ -2,6 +2,8 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using System.Runtime.CompilerServices;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.Events;
 using AGM = DDoor.AlternativeGameModes;
 
@@ -29,15 +31,21 @@ public class Plugin : BaseUnityPlugin
 	{
 		instance = this;
 
+		// Only show Unity logs that are errors
+		Application.logMessageReceivedThreaded += (condition, stackTrace, type) =>
+		{
+			if (type == LogType.Log || type == LogType.Warning)
+				return;
+
+			Logger.LogError($"{condition}\n{stackTrace}");
+		};
+
 		try
 		{
 			Logger = base.Logger;
 			Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
-			AGM.AlternativeGameModes.Add("ARCHIPELAGO", () =>
-			{
-				ArchipelagoRandomizerMod.Instance.OnFileCreated();
-			});
+			AGM.AlternativeGameModes.Add("ARCHIPELAGO", ArchipelagoRandomizerMod.Instance.OnFileCreated);
 
 			harmony = new Harmony("deathsdoor.archipelagorandomizer");
 			harmony.PatchAll();
@@ -65,6 +73,16 @@ public class Plugin : BaseUnityPlugin
 		// For Entrance Randomization, we have to wrap IC's ShortcutDoor Trigger Prefix with some additional code to prevent receiving checks when coming through a door
 		// Thus, we unpatch it here and then redo the patch in EntranceRandomizer.cs
 		Instance.harmony.Unpatch(AccessTools.Method(typeof(ShortcutDoor), nameof(ShortcutDoor.Trigger)), HarmonyPatchType.Prefix, "deathsdoor.itemchanger");
+	}
+
+	private void OnApplicationQuit()
+	{
+		Preloader.Instance.Dispose();
+	}
+
+	public static Coroutine StartRoutine(IEnumerator routine)
+	{
+		return Instance.StartCoroutine(routine);
 	}
 }
 

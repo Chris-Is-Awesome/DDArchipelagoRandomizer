@@ -75,13 +75,22 @@ internal class EntranceRandomizer : MonoBehaviour
             if (Archipelago.Instance.IsConnected() && Instance != null && Instance.entranceRandomization)
             {
                 DoorTrigger doorTrigger = __instance.doorTrigger;
-                SceneTransitions.SceneTransition? newSceneTransition = SceneTransitions.GetConnectedSceneTransition(doorTrigger.doorId, doorTrigger.sceneToLoad);
-                doorTrigger.sceneToLoad = newSceneTransition?.toSceneName;
-                doorTrigger.targetDoor = newSceneTransition?.loadingZoneId;
+				
+				// Lord of Doors sequence's doors don't have triggers
+				if (doorTrigger != null)
+				{
+					SceneTransitions.SceneTransition? newSceneTransition = SceneTransitions.GetConnectedSceneTransition(doorTrigger.doorId, doorTrigger.sceneToLoad);
+
+					if (newSceneTransition != null)
+					{
+						doorTrigger.sceneToLoad = newSceneTransition?.toSceneName;
+						doorTrigger.targetDoor = newSceneTransition?.loadingZoneId;
+					}
+				}
             }
             if (!IC.ItemChangerPlugin.TryGetPlacedItem(typeof(IC.DoorLocation), __instance.keyId, out IC.Item? item))
             {
-                // If the door isn't randomized, don't disable it
+				// If the door isn't randomized, don't disable it
                 return;
             }
             string doorName = IC.Predefined.predefinedLocations.First(kvp => kvp.Value.GetType() == typeof(IC.DoorLocation) && ((IC.DoorLocation)kvp.Value).UniqueId == __instance.keyId).Key;

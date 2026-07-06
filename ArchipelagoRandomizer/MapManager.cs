@@ -66,6 +66,9 @@ public class MapManager : MonoBehaviour
 
     private void UpdateCoordsIfNeeded()
     {
+		if (Preloader.IsPreloading)
+			return;
+
         float currentTime = Time.time;
         if (PlayerGlobal.instance)
         {
