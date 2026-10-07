@@ -1070,5 +1070,285 @@
     {
         "apLocationId": 1111,
         "itemChangerName": "Crow-Lockstone South West"
+    },
+    {
+        "apLocationId": 3000,
+        "itemChangerName": "Shop - Strength Upgrade 1"
+    },
+    {
+        "apLocationId": 3001,
+        "itemChangerName": "Shop - Strength Upgrade 2"
+    },
+    {
+        "apLocationId": 3002,
+        "itemChangerName": "Shop - Strength Upgrade 3"
+    },
+    {
+        "apLocationId": 3003,
+        "itemChangerName": "Shop - Strength Upgrade 4"
+    },
+    {
+        "apLocationId": 3004,
+        "itemChangerName": "Shop - Strength Upgrade 5"
+    },
+    {
+        "apLocationId": 3005,
+        "itemChangerName": "Shop - Dexterity Upgrade 1"
+    },
+    {
+        "apLocationId": 3006,
+        "itemChangerName": "Shop - Dexterity Upgrade 2"
+    },
+    {
+        "apLocationId": 3007,
+        "itemChangerName": "Shop - Dexterity Upgrade 3"
+    },
+    {
+        "apLocationId": 3008,
+        "itemChangerName": "Shop - Dexterity Upgrade 4"
+    },
+    {
+        "apLocationId": 3009,
+        "itemChangerName": "Shop - Dexterity Upgrade 5"
+    },
+    {
+        "apLocationId": 3010,
+        "itemChangerName": "Shop - Haste Upgrade 1"
+    },
+    {
+        "apLocationId": 3011,
+        "itemChangerName": "Shop - Haste Upgrade 2"
+    },
+    {
+        "apLocationId": 3012,
+        "itemChangerName": "Shop - Haste Upgrade 3"
+    },
+    {
+        "apLocationId": 3013,
+        "itemChangerName": "Shop - Haste Upgrade 4"
+    },
+    {
+        "apLocationId": 3014,
+        "itemChangerName": "Shop - Haste Upgrade 5"
+    },
+    {
+        "apLocationId": 3015,
+        "itemChangerName": "Shop - Magic Upgrade 1"
+    },
+    {
+        "apLocationId": 3016,
+        "itemChangerName": "Shop - Magic Upgrade 2"
+    },
+    {
+        "apLocationId": 3017,
+        "itemChangerName": "Shop - Magic Upgrade 3"
+    },
+    {
+        "apLocationId": 3018,
+        "itemChangerName": "Shop - Magic Upgrade 4"
+    },
+    {
+        "apLocationId": 3019,
+        "itemChangerName": "Shop - Magic Upgrade 5"
+    },
+    {
+        "apLocationId": 3100,
+        "itemChangerName": "Planted 1 Life Seed"
+    },
+    {
+        "apLocationId": 3101,
+        "itemChangerName": "Planted 2 Life Seeds"
+    },
+    {
+        "apLocationId": 3102,
+        "itemChangerName": "Planted 3 Life Seeds"
+    },
+    {
+        "apLocationId": 3103,
+        "itemChangerName": "Planted 4 Life Seeds"
+    },
+    {
+        "apLocationId": 3104,
+        "itemChangerName": "Planted 5 Life Seeds"
+    },
+    {
+        "apLocationId": 3105,
+        "itemChangerName": "Planted 6 Life Seeds"
+    },
+    {
+        "apLocationId": 3106,
+        "itemChangerName": "Planted 7 Life Seeds"
+    },
+    {
+        "apLocationId": 3107,
+        "itemChangerName": "Planted 8 Life Seeds"
+    },
+    {
+        "apLocationId": 3108,
+        "itemChangerName": "Planted 9 Life Seeds"
+    },
+    {
+        "apLocationId": 3109,
+        "itemChangerName": "Planted 10 Life Seeds"
+    },
+    {
+        "apLocationId": 3110,
+        "itemChangerName": "Planted 11 Life Seeds"
+    },
+    {
+        "apLocationId": 3111,
+        "itemChangerName": "Planted 12 Life Seeds"
+    },
+    {
+        "apLocationId": 3112,
+        "itemChangerName": "Planted 13 Life Seeds"
+    },
+    {
+        "apLocationId": 3113,
+        "itemChangerName": "Planted 14 Life Seeds"
+    },
+    {
+        "apLocationId": 3114,
+        "itemChangerName": "Planted 15 Life Seeds"
+    },
+    {
+        "apLocationId": 3115,
+        "itemChangerName": "Planted 16 Life Seeds"
+    },
+    {
+        "apLocationId": 3116,
+        "itemChangerName": "Planted 17 Life Seeds"
+    },
+    {
+        "apLocationId": 3117,
+        "itemChangerName": "Planted 18 Life Seeds"
+    },
+    {
+        "apLocationId": 3118,
+        "itemChangerName": "Planted 19 Life Seeds"
+    },
+    {
+        "apLocationId": 3119,
+        "itemChangerName": "Planted 20 Life Seeds"
+    },
+    {
+        "apLocationId": 3120,
+        "itemChangerName": "Planted 21 Life Seeds"
+    },
+    {
+        "apLocationId": 3121,
+        "itemChangerName": "Planted 22 Life Seeds"
+    },
+    {
+        "apLocationId": 3122,
+        "itemChangerName": "Planted 23 Life Seeds"
+    },
+    {
+        "apLocationId": 3123,
+        "itemChangerName": "Planted 24 Life Seeds"
+    },
+    {
+        "apLocationId": 3124,
+        "itemChangerName": "Planted 25 Life Seeds"
+    },
+    {
+        "apLocationId": 3125,
+        "itemChangerName": "Planted 26 Life Seeds"
+    },
+    {
+        "apLocationId": 3126,
+        "itemChangerName": "Planted 27 Life Seeds"
+    },
+    {
+        "apLocationId": 3127,
+        "itemChangerName": "Planted 28 Life Seeds"
+    },
+    {
+        "apLocationId": 3128,
+        "itemChangerName": "Planted 29 Life Seeds"
+    },
+    {
+        "apLocationId": 3129,
+        "itemChangerName": "Planted 30 Life Seeds"
+    },
+    {
+        "apLocationId": 3130,
+        "itemChangerName": "Planted 31 Life Seeds"
+    },
+    {
+        "apLocationId": 3131,
+        "itemChangerName": "Planted 32 Life Seeds"
+    },
+    {
+        "apLocationId": 3132,
+        "itemChangerName": "Planted 33 Life Seeds"
+    },
+    {
+        "apLocationId": 3133,
+        "itemChangerName": "Planted 34 Life Seeds"
+    },
+    {
+        "apLocationId": 3134,
+        "itemChangerName": "Planted 35 Life Seeds"
+    },
+    {
+        "apLocationId": 3135,
+        "itemChangerName": "Planted 36 Life Seeds"
+    },
+    {
+        "apLocationId": 3136,
+        "itemChangerName": "Planted 37 Life Seeds"
+    },
+    {
+        "apLocationId": 3137,
+        "itemChangerName": "Planted 38 Life Seeds"
+    },
+    {
+        "apLocationId": 3138,
+        "itemChangerName": "Planted 39 Life Seeds"
+    },
+    {
+        "apLocationId": 3139,
+        "itemChangerName": "Planted 40 Life Seeds"
+    },
+    {
+        "apLocationId": 3140,
+        "itemChangerName": "Planted 41 Life Seeds"
+    },
+    {
+        "apLocationId": 3141,
+        "itemChangerName": "Planted 42 Life Seeds"
+    },
+    {
+        "apLocationId": 3142,
+        "itemChangerName": "Planted 43 Life Seeds"
+    },
+    {
+        "apLocationId": 3143,
+        "itemChangerName": "Planted 44 Life Seeds"
+    },
+    {
+        "apLocationId": 3144,
+        "itemChangerName": "Planted 45 Life Seeds"
+    },
+    {
+        "apLocationId": 3145,
+        "itemChangerName": "Planted 46 Life Seeds"
+    },
+    {
+        "apLocationId": 3146,
+        "itemChangerName": "Planted 47 Life Seeds"
+    },
+    {
+        "apLocationId": 3147,
+        "itemChangerName": "Planted 48 Life Seeds"
+    },
+    {
+        "apLocationId": 3148,
+        "itemChangerName": "Planted 49 Life Seeds"
+    },
+    {
+        "apLocationId": 3149,
+        "itemChangerName": "Planted 50 Life Seeds"
     }
 ]
