@@ -172,6 +172,12 @@ internal class Archipelago
 		return (T)value;
 	}
 
+	public bool TryGetSlotData(string key, out object value)
+	{
+		value = null;
+		return slotData != null && slotData.TryGetValue(key, out value) && value != null;
+	}
+
 	private async Task OnSocketOpened(LoginSuccessful loginSuccess, APSaveData apSaveData)
 	{
 		slotData = loginSuccess.SlotData;
@@ -374,6 +380,31 @@ internal class Archipelago
 			Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"] = JArray.FromObject(foundEntrances);
 		}		
     }
+
+	internal void StoreOpenedKeyDoors(List<string> openedDoors)
+	{
+		// Read by Universal Tracker (apworld 0.4.0+) so doors already opened stop needing every key of their colour
+		if (!IsConnected())
+		{
+			return;
+		}
+		string key = $"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_opened_key_doors";
+		JArray stored = Session.DataStorage[key];
+		List<string> merged = stored == null ? new List<string>() : stored.ToObject<List<string>>() ?? new List<string>();
+		bool changed = false;
+		foreach (string door in openedDoors)
+		{
+			if (!merged.Contains(door))
+			{
+				merged.Add(door);
+				changed = true;
+			}
+		}
+		if (changed)
+		{
+			Session.DataStorage[key] = JArray.FromObject(merged);
+		}
+	}
 
 	internal void ToggleDeathlink(bool newValue)
 	{

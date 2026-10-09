@@ -81,6 +81,11 @@ internal class ItemRandomizer : MonoBehaviour
 			};
 			item = tempItem;
 		}
+		else if (itemName.StartsWith("Progressive ") &&
+			ShopAndPlanting.StatNames.FirstOrDefault(kvp => itemName == $"Progressive {kvp.Value}").Key is string statId)
+		{
+			item = new ShopAndPlanting.StatUpgradeItem(statId);
+		}
 		else if (!IC.Predefined.TryGetItem(itemName, out item))
 		{
 			Logger.LogError($"Received unknown item {itemName} from {playerName}");
@@ -258,6 +263,14 @@ internal class ItemRandomizer : MonoBehaviour
 
 	private string ModifyItemName(string itemName)
 	{
+		// "Progressive Strength" -> "Progressive Strength 3": the level this copy brings the stat to
+		string statId = ShopAndPlanting.StatNames.FirstOrDefault(kvp => itemName == $"Progressive {kvp.Value}").Key;
+		if (statId != null && Inventory.instance != null)
+		{
+			int current = Inventory.instance.GetItem(statId)?.stackCount ?? 0;
+			return $"{itemName} {current + 1}";
+		}
+
 		switch (itemName)
 		{
 			case "100 Souls":
@@ -295,7 +308,7 @@ internal class ItemRandomizer : MonoBehaviour
 		public bool IsForAnotherPlayer { get; private set; } = isForAnotherPlayer;
 	}
 
-	private readonly struct DDItem : IC.Item
+	internal readonly struct DDItem : IC.Item
 	{
 		public string DisplayName { get; }
 		public string Icon { get; }

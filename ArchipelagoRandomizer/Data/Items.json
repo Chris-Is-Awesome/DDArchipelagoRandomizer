@@ -542,5 +542,21 @@
     {
         "apItemId": 2003,
         "itemChangerName": "Knockback Trap"
+    },
+    {
+        "apItemId": 3000,
+        "itemChangerName": "Progressive Strength"
+    },
+    {
+        "apItemId": 3001,
+        "itemChangerName": "Progressive Dexterity"
+    },
+    {
+        "apItemId": 3002,
+        "itemChangerName": "Progressive Haste"
+    },
+    {
+        "apItemId": 3003,
+        "itemChangerName": "Progressive Magic"
     }
 ]
