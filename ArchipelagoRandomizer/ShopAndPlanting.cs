@@ -32,6 +32,24 @@ internal static class ShopAndPlanting
 		"fstlock_0", "fstlock_1", "fstlock_2", "fstlock_4",
 	];
 
+	// HealPlant.id of the 50 pots; planted ones are greyed out on the tracker map
+	private static readonly string[] PotIds =
+	[
+		"plant_graveyardroute1", "plant_graveyardcatacombs", "plant_graveyardroute3", "plant_preservant2",
+		"plant_graveyardredeemer", "plant_graveyardroute2", "plant_preservant1", "plant_preservant3",
+		"plant_gardenintro", "plant_gardensouthwest", "plant_gardensoutheast", "plant_gardencentre",
+		"plant_secret1", "plant_secret2", "plant_gardennortheast", "plant_mansioncentre",
+		"plant_mansionattic1", "plant_mansionattic2", "plant_mansiondining", "plant_mansionlibrary",
+		"plant_mansionbedroom", "plant_basementplaguewave", "plant_basementwest", "plant_basementeast",
+		"plant_basementcentral", "plant_basementend", "plant_castlegardenwest", "plant_castlenorthwest",
+		"plant_castleentrance", "plant_castlenortheast", "plant_fortressexterior", "plant_mountaintopsroute1",
+		"plant_mountaintopsmiddle", "plant_mountaintopsroute2", "plant_mountaintopsroute3", "plant_mountaintopsend",
+		"plant_forestintro", "plant_forestcorridor", "plant_forestmiddle", "plant_forestlastwave",
+		"plant_forestend", "plant_dungeonnortheast", "plant_dungeonconnecting", "plant_dungeonsouth",
+		"plant_dungeoneast", "plant_swamproute1", "plant_swamproute2", "plant_swampmiddle",
+		"plant_swampwavebattle", "plant_swamproute3",
+	];
+
 	private static bool shopEnabled;
 	private static Dictionary<string, List<int>> shopPrices = new();
 	private static List<int> plantingThresholds = new();
@@ -95,10 +113,19 @@ internal static class ShopAndPlanting
 		IC.SaveData icSaveData = IC.SaveData.Open();
 		if (icSaveData != null && icSaveData.UnnamedPlacements.TryGetValue(location, out IC.Item item))
 		{
-			// Same path as an ItemChanger pickup: marks the save, records it and sends it to the server
-			item.Trigger();
-			// Items for this player get their popup when they arrive from the server; show other players' items now
-			if (item is ItemRandomizer.DDItem ddItem && ddItem.IsForAnotherPlayer)
+			bool forAnotherPlayer = item is ItemRandomizer.DDItem { IsForAnotherPlayer: true };
+			// Same path as an ItemChanger pickup: marks the save, records it and sends it to the server.
+			// Like ItemChanger's own locations, other players' items go through LoggedItem so they show up in the
+			// tracker log / recent items list; this player's items are listed when they arrive from the server.
+			if (forAnotherPlayer)
+			{
+				new IC.LoggedItem(item, item.DisplayName, location).Trigger();
+			}
+			else
+			{
+				item.Trigger();
+			}
+			if (item is ItemRandomizer.DDItem ddItem && forAnotherPlayer)
 			{
 				try
 				{
@@ -122,6 +149,11 @@ internal static class ShopAndPlanting
 	// ---------------------------------------------------------------- planting
 	private static void SyncPlanting()
 	{
+		List<string> plantedPots = PotIds.Where(id => GameSave.GetSaveData().IsKeyUnlocked(id)).ToList();
+		if (plantedPots.Count > 0)
+		{
+			Archipelago.Instance.StorePlantedPots(plantedPots);
+		}
 		if (plantingThresholds.Count == 0)
 		{
 			return;
@@ -239,6 +271,10 @@ internal static class ShopAndPlanting
 		[HarmonyPrefix, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.purchase))]
 		private static void MenuCostContextPurchase(UIMenuStatUpgrades __instance) => MenuCostContext(__instance);
 
+		// Pressing buy checks the price against your souls here before the confirm prompt opens
+		[HarmonyPrefix, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.OpenPrompt_Confirm))]
+		private static void MenuCostContextConfirm(UIMenuStatUpgrades __instance) => MenuCostContext(__instance);
+
 		private static void MenuCostContext(UIMenuStatUpgrades __instance)
 		{
 			UI_StatUpgrade cell = __instance.grid != null && __instance.index >= 0 && __instance.index < __instance.grid.Length
@@ -247,14 +283,18 @@ internal static class ShopAndPlanting
 			costContextStat = IsApStat(cell) ? cell.itemId : null;
 		}
 
-		[HarmonyPostfix, HarmonyPatch(typeof(UI_StatUpgrade), nameof(UI_StatUpgrade.checkCanAfford))]
+		// Finalizers so the context is cleared even if something in between throws
+		[HarmonyFinalizer, HarmonyPatch(typeof(UI_StatUpgrade), nameof(UI_StatUpgrade.checkCanAfford))]
 		private static void ClearCellCostContext() => costContextStat = null;
 
-		[HarmonyPostfix, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.checkCurrency))]
+		[HarmonyFinalizer, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.checkCurrency))]
 		private static void ClearMenuCheckContext() => costContextStat = null;
 
-		[HarmonyPostfix, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.purchase))]
+		[HarmonyFinalizer, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.purchase))]
 		private static void ClearMenuPurchaseContext() => costContextStat = null;
+
+		[HarmonyFinalizer, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.OpenPrompt_Confirm))]
+		private static void ClearMenuConfirmContext() => costContextStat = null;
 
 		[HarmonyPostfix, HarmonyPatch(typeof(Inventory), nameof(Inventory.GetCostPerLevel))]
 		private static void CostPerLevel(int lvl, ref int __result)

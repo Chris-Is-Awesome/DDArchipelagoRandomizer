@@ -381,22 +381,37 @@ internal class Archipelago
 		}		
     }
 
-	internal void StoreOpenedKeyDoors(List<string> openedDoors)
+	// Read by Universal Tracker (apworld 0.4.0+) so doors already opened stop needing every key of their colour
+	internal void StoreOpenedKeyDoors(List<string> openedDoors) => AddToStoredList("deathsdoor_opened_key_doors", openedDoors);
+
+	// Read by Universal Tracker (apworld 0.4.0+) to grey out planted pots on the map
+	internal void StorePlantedPots(List<string> plantedPots) => AddToStoredList("deathsdoor_planted_pots", plantedPots);
+
+	/// <summary>Adds entries to a list in data storage (slot and team prefixed), writing only when something is new.</summary>
+	private void AddToStoredList(string keySuffix, List<string> entries)
 	{
-		// Read by Universal Tracker (apworld 0.4.0+) so doors already opened stop needing every key of their colour
 		if (!IsConnected())
 		{
 			return;
 		}
-		string key = $"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_opened_key_doors";
+		string key = $"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_{keySuffix}";
+		// Skip the server round trip when everything was already written this session
+		if (!storedListCache.TryGetValue(key, out HashSet<string> written))
+		{
+			written = storedListCache[key] = new HashSet<string>();
+		}
+		if (entries.All(written.Contains))
+		{
+			return;
+		}
 		JArray stored = Session.DataStorage[key];
 		List<string> merged = stored == null ? new List<string>() : stored.ToObject<List<string>>() ?? new List<string>();
 		bool changed = false;
-		foreach (string door in openedDoors)
+		foreach (string entry in entries)
 		{
-			if (!merged.Contains(door))
+			if (!merged.Contains(entry))
 			{
-				merged.Add(door);
+				merged.Add(entry);
 				changed = true;
 			}
 		}
@@ -404,7 +419,10 @@ internal class Archipelago
 		{
 			Session.DataStorage[key] = JArray.FromObject(merged);
 		}
+		written.UnionWith(merged);
 	}
+
+	private readonly Dictionary<string, HashSet<string>> storedListCache = new();
 
 	internal void ToggleDeathlink(bool newValue)
 	{
