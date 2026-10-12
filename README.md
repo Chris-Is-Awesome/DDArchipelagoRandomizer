@@ -85,6 +85,8 @@ We talk about the development of this in the Death's Door thread in the `future-
 
 ## Acknowledgements
 
+Thanks to [Chris-is-Awesome](https://github.com/Chris-Is-Awesome) for creating the ArchipelagiRandomizer mod and combining the work of all the amazing people below + maintaining the AP state up to v0.3.3! (Awesome indeed!)
+
 Thanks to [dpinela](https://github.com/dpinela) for their work on the
 [Multiworld Randomizer](https://github.com/dpinela/DeathsDoor.Randomizer)
 and for some of the dependencies this mod uses:
