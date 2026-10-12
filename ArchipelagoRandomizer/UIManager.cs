@@ -80,7 +80,7 @@ internal class UIManager
 		UpdateVersion = MyPluginInfo.PLUGIN_VERSION;
 		try
 		{
-			HttpWebRequest Request = (HttpWebRequest)WebRequest.Create("https://api.github.com/repos/Chris-Is-Awesome/DDArchipelagoRandomizer/releases");
+			HttpWebRequest Request = (HttpWebRequest)WebRequest.Create("https://api.github.com/repos/OSoffocles/DDArchipelagoRandomizer/releases");
 			Request.UserAgent = "request";
 			HttpWebResponse response = (HttpWebResponse)Request.GetResponse();
 			StreamReader Reader = new StreamReader(response.GetResponseStream());

@@ -11,7 +11,7 @@ This is a work in progress Archipelago randomizer mod for Death's Door.
     - Unzip the BepInEx folder into the root of your game's installation directory (i.e. there should be a BepInEx folder in the same folder as your DeathsDoor.exe)
 1. Run the game once to generate the BepInEx plugins folder, then quit before performing the next step
 1. Install these mods into your Death's Door BepInEx plugins folder (inside the BepInEx folder) by unzipping the folder from the release. Note that each mod should be in its own folder within the plugins folder.
-    - [Archipelago Randomizer](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest) (required)
+    - [Archipelago Randomizer](https://github.com/OSoffocles/DDArchipelagoRandomizer/releases/latest) (required)
     - [Alternative Game Modes](https://github.com/dpinela/DeathsDoor.AlternativeGameModes) (required)
     - [Item Changer](https://github.com/dpinela/DeathsDoor.ItemChanger) (required)
     - [MagicUI](https://github.com/dpinela/DeathsDoor.MagicUI) (required)
@@ -22,7 +22,7 @@ This is a work in progress Archipelago randomizer mod for Death's Door.
 
 ## Playing
 1. Install the mods as instructed above.
-1. Generate and host a world using the Death's Door apworld (`deaths_door.apworld`, attached to the [latest release](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest)) as instructed in the [apworld README](APWorld/deaths_door/README.md). The apworld's source lives in the `APWorld/deaths_door` folder of this repo.
+1. Generate and host a world using the Death's Door apworld (`deaths_door.apworld`, attached to the [latest release](https://github.com/OSoffocles/DDArchipelagoRandomizer/releases/latest)) as instructed in the [apworld README](APWorld/deaths_door/README.md). The apworld's source lives in the `APWorld/deaths_door` folder of this repo.
 1. After selecting Start on the Title Screen and selecting a new save file, you'll be able to navigate left and right on the "Start" button to choose "Archipelago." Select "Archipelago".
 1. Enter in the connection details for your generated world and slot. If you generated a solo world with the default template, your Player Name is Player1.
 1. If you entered in your details correctly and your room is currently open, then you will load into game.
