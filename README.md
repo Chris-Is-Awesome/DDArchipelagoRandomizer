@@ -22,7 +22,7 @@ This is a work in progress Archipelago randomizer mod for Death's Door.
 
 ## Playing
 1. Install the mods as instructed above.
-1. Generate and host a world using the Death's Door apworld as instructed in the [Death's Door apworld](https://github.com/roseasromeo/DeathsDoorAPWorld) README.
+1. Generate and host a world using the Death's Door apworld (`deaths_door.apworld`, attached to the [latest release](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest)) as instructed in the [apworld README](APWorld/deaths_door/README.md). The apworld's source lives in the `APWorld/deaths_door` folder of this repo.
 1. After selecting Start on the Title Screen and selecting a new save file, you'll be able to navigate left and right on the "Start" button to choose "Archipelago." Select "Archipelago".
 1. Enter in the connection details for your generated world and slot. If you generated a solo world with the default template, your Player Name is Player1.
 1. If you entered in your details correctly and your room is currently open, then you will load into game.
@@ -90,6 +90,8 @@ Thanks to [dpinela](https://github.com/dpinela) for their work on the
 and for some of the dependencies this mod uses:
 [Alternative Game Modes](https://github.com/dpinela/DeathsDoor.AlternativeGameModes),
 [Item Changer](https://github.com/dpinela/DeathsDoor.ItemChanger), and [MagicUI](https://github.com/dpinela/DeathsDoor.MagicUI)!
+
+Thanks to [roseasromeo](https://github.com/roseasromeo) for the [Death's Door apworld](https://github.com/roseasromeo/DeathsDoorAPWorld), which now lives in the `APWorld` folder of this repo!
 
 Thanks to [lunix33](https://github.com/lunix33) for starting this project with their work on the
 first attempt at an [APWorld](https://github.com/lunix33/Archipelago_DeathsDoor/tree/deaths-door/worlds/deaths_door) side of things!
