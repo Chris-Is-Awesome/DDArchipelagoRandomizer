@@ -145,8 +145,7 @@ class GateRollsGlitch(Toggle):
     """Puts rolling through certain "gates" in logic.
         - Estate entrance to Crypt through metal gate
         - Mushroom Dungeon Lobby to Overgrown Ruins through vines
-        - Mushroom Dungeon Ancient Door to Lobby through a metal gate and a cobweb
-        - Ceramic Manor Lobby to the Manor exit to Estate through breakable-pot door"""
+        - Mushroom Dungeon Ancient Door to Lobby through a metal gate and a cobweb"""
     
     internal_name = "gate_rolls_glitch"
     display_name = "Gate Rolls Glitch"
