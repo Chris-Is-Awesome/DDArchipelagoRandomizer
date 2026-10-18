@@ -10,6 +10,7 @@ from Options import (
     PerGameCommonOptions,
     OptionGroup,
     Toggle,
+    DefaultOnToggle,
     Range,
     OptionSet,
     PlandoConnections
@@ -57,7 +58,9 @@ class EarlyImportantItem(Choice):
 
 
 class ExtraLifeSeeds(Range):
-    """Add extra life seeds or remove extra life seeds from the item pool, which are interchanged with Soul Orb items. Additional extra life seeds will be marked as useful.
+    """Add extra life seeds or remove extra life seeds from the item pool, which are interchanged with Soul Orb items. Counted from the 50 vanilla Life Seeds, regardless of plant_pot_number.
+    
+    Every Life Seed counts in logic. Life Seeds skip progression balancing, so they aren't pulled into early spheres of the multiworld.
     
     When removing life seeds (using a negative number), the number left in the pool will be at minimum the number required by plant_pot_number.
     """
@@ -69,7 +72,7 @@ class ExtraLifeSeeds(Range):
     default = 0
 
 class PlantedPotsRequired(Range):
-    """Number of planted pots required for Green Tablet location. Also adjusts the number of Life Seeds marked as Progression."""
+    """Number of planted pots required for Green Tablet location."""
 
     internal_name = "plant_pot_number"
     display_name = "Number of Planted Pots Required for Green Tablet"
@@ -300,6 +303,14 @@ class ShopPrices(Choice):
     default = 0
 
 
+class ShopHints(DefaultOnToggle):
+    """When Shop Upgrades is on, looking at a stat in the shop shows the item its next upgrade holds and sends a hint
+    for it, so it shows up in your hint list and in the tracker (and tells the player it belongs to)."""
+
+    internal_name = "shop_hints"
+    display_name = "Shop Hints"
+
+
 class ShopPriceMinimum(Range):
     """Lowest price of a shop upgrade when Shop Prices is Random Range."""
 
@@ -396,6 +407,7 @@ class DeathsDoorOptions(PerGameCommonOptions):
     plando_connections: DeathsDoorPlandoConnections
     shop_upgrades: ShopUpgrades
     shop_prices: ShopPrices
+    shop_hints: ShopHints
     shop_price_minimum: ShopPriceMinimum
     shop_price_maximum: ShopPriceMaximum
     extra_stat_upgrades: ExtraStatUpgrades
@@ -410,7 +422,7 @@ deathsdoor_option_groups: list[OptionGroup] = [
                                   BombBellGlitch, OffscreenTargetingTricks, GeometryExploits, RollBuffers]),
     OptionGroup("Itempool Modification Options", [ExtraLifeSeeds, ExtraMagicShards, ExtraVitalityShards,
                                                   RemoveSpellUpgrades, UnrandomizedPools, TrapChance, TrapTypeWeights]),
-    OptionGroup("Shop and Planting", [ShopUpgrades, ShopPrices, ShopPriceMinimum, ShopPriceMaximum, ExtraStatUpgrades,
+    OptionGroup("Shop and Planting", [ShopUpgrades, ShopPrices, ShopHints, ShopPriceMinimum, ShopPriceMaximum, ExtraStatUpgrades,
                                       PlantingChecks, SeedsPerPlantingCheck]),
     OptionGroup("Customization Options", [StartWeapon, SoulMultiplier, StartingSouls])
 ]

@@ -21,7 +21,7 @@ ceramic_manor_entrances: list[DeathsDoorEntrance] = [
     DeathsDoorEntrance(
         R.CERAMIC_MANOR_MAIN_LOBBY,
         R.CERAMIC_MANOR_EXIT_TO_ESTATE_OF_THE_URN_WITCH,
-        True_(options=[OptionFilter(GateRollsGlitch, 1)]) | Has(E.OOL),
+        None,  # the gate to the Estate opens from the inside, day or night (tested in game)
     ),
     DeathsDoorEntrance(
         R.CERAMIC_MANOR_MAIN_LOBBY,

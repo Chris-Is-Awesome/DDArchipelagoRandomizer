@@ -1,12 +1,12 @@
 # DeathsDoorArchipelago: APWorld for Death's Door
 Death's Door is a game about being a crow whose job it is to collect souls, who then accidentally stumbles into a grand conspiracy about the nature of life and death. Also, you hit things with weapons.
 
-This project is an [Archipelago](https://archipelago.gg/) apworld for [Death's Door](https://store.steampowered.com/app/894020/Deaths_Door/) that works with a [mod](https://github.com/OSoffocles/DDArchipelagoRandomizer/). Together, they will take the things your character would pick up throughout the game and randomize them, potentially between multiple games. If you are not familiar with Archipelago, we recommend reading Archipelago's introduction documents starting with the [FAQ](https://archipelago.gg/faq/en/).
+This project is an [Archipelago](https://archipelago.gg/) apworld for [Death's Door](https://store.steampowered.com/app/894020/Deaths_Door/) that works with a [mod](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/). Together, they will take the things your character would pick up throughout the game and randomize them, potentially between multiple games. If you are not familiar with Archipelago, we recommend reading Archipelago's introduction documents starting with the [FAQ](https://archipelago.gg/faq/en/).
 
 ## Instructions
-1. Setup the [Death's Door Archipelago Mod mod](https://github.com/OSoffocles/DDArchipelagoRandomizer/) as described in its README.
+1. Setup the [Death's Door Archipelago Mod mod](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/) as described in its README.
 2. Install [Archipelago 0.6.3+](https://github.com/ArchipelagoMW/Archipelago/releases/) (or follow their instructions to run from source)
-3. Download the latest apworld (`deaths_door.apworld`) provided on the mod's [releases page](https://github.com/OSoffocles/DDArchipelagoRandomizer/releases/latest)
+3. Download the latest apworld (`deaths_door.apworld`) provided on the mod's [releases page](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest)
     - Check to make sure the name of your download does not have any artifacts (i.e. no (1) or other browser added names). The apworld should be named "deaths_door.apworld"
     - To create the apworld from scratch: download the mod repo's source code and zip the `APWorld/deaths_door` folder into a file named deaths_door.apworld. The zip/apworld file should contain a `deaths_door` folder at the top level 
 4. On Windows, double-click the apworld &mdash; it should be "installed" (copied) into the `custom_worlds` folder in your Archipelago installation folder. (On Linux and Mac, manually copy the apworld into the `custom_worlds` folder)

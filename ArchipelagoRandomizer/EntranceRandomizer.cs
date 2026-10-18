@@ -201,15 +201,17 @@ internal class EntranceRandomizer : MonoBehaviour
                     {
                         foreach (DoorTrigger doorTrigger in rootObject.GetComponentsInChildren<DoorTrigger>(true))
                         {
-                            if (doorTrigger.doorId == __instance.targetDoor)
+                            if (doorTrigger.doorId == __instance.targetDoor && doorTrigger != __instance)
                             {
-                                __instance.triggered = true;
-                                collider.gameObject.GetComponent<PlayerInputControl>()?.PauseInput(true);
+                                // The door leads to another door in a scene that is already loaded (for example
+                                // two Hall of Doors doors paired with each other). Let the game's own door-to-door
+                                // transport handle it: it walks you in, fades out, teleports and gives control
+                                // back. Teleporting here directly left this door "triggered", so it kept walking
+                                // the player towards it forever (the game looked frozen).
+                                DoorTrigger.currentTargetDoor = __instance.targetDoor;
                                 __instance.linkedLocalDoor = doorTrigger;
-                                doorTrigger.teleportThroughThisDoor();
-                                PlayerGlobal.instance.UnPauseInput_Cutscene();
                                 GameSceneManager.instance.reloadPlayerScene = true;
-                                return false;
+                                return true;
                             }
                         }
                     }

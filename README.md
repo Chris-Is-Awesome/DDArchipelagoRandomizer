@@ -22,7 +22,8 @@ This is a work in progress Archipelago randomizer mod for Death's Door.
 
 ## Playing
 1. Install the mods as instructed above.
-1. Generate and host a world using the Death's Door apworld (`deaths_door.apworld`, attached to the [latest release](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest) as instructed in the [apworld README](APWorld/deaths_door/README.md). The apworld's source lives in the `APWorld/deaths_door` folder of this repo.
+1. Generate and host a world using the Death's Door apworld (`deaths_door.apworld`, attached to the [latest release](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest)) as instructed in the [apworld README](APWorld/deaths_door/README.md). The apworld's source lives in the `APWorld/deaths_door` folder of this repo.
+1. Before starting, open the Options menu on the Title Screen and check the [Mod Options](#mod-options) below, especially **Skip Cutscenes** and **TrapLink**. These settings are remembered between sessions, so check them again if something seems off.
 1. After selecting Start on the Title Screen and selecting a new save file, you'll be able to navigate left and right on the "Start" button to choose "Archipelago." Select "Archipelago".
 1. Enter in the connection details for your generated world and slot. If you generated a solo world with the default template, your Player Name is Player1.
 1. If you entered in your details correctly and your room is currently open, then you will load into game.
@@ -30,12 +31,22 @@ This is a work in progress Archipelago randomizer mod for Death's Door.
 1. If playing over multiple sessions, you can resume your save by clicking Start or Archipelago on your existing save, and updating your connection information if the port changes.
 
 ### Mod Options
+All of these are off by default. They are saved on your PC and stay as you left them for every save file and every future session, so it is worth checking them before you start a new multiworld.
+
+* Skip Cutscenes (Title Screen Options Menu) &mdash; **recommended: on**
+  * If Skip Cutscenes is on when a file is started, most skippable cutscenes will be skipped. If Skip Cutscenes is off, only a few cutscenes that can block progress are skipped.
+  * Skip Cutscenes also skips the camera pans that show what you just opened, such as the Castle Lockstone braziers, the Lost Cemetery ghosts or crow souls flying into an Ancient Door.
+  * A few cutscenes that can leave invisible walls behind are always skipped, whatever this setting says.
+  * Either way, the Grove of Spirits Door check is sent as soon as you arrive in the Hall of Doors on a new file.
+  * Most of these are decided when a new save file is started. The late-game story scenes are skipped whenever Skip Cutscenes is on, also on saves already under way: the Grey Crow opening Death's Door, the Grey Crow and Death in the void, Death's talk afterwards, the crows' scene in the Hall of Doors, and the Lord of Doors' speeches. The ending after the Lord of Doors and the credits still play.
 * Deathlink (Title Screen Options Menu)
   * If Deathlink is on, you will send a Deathlink out when you die in game and die when you receive a deathlink from another game with Deathlink turned on.
+* TrapLink (Title Screen Options Menu)
+  * If TrapLink is on, traps that other TrapLink players receive are also sent to you (and yours to them). Traps from other games are converted to a Death's Door trap; for example a "Tiny Trap" makes you invisible for a while. They show up as received from the server. Leave this off unless your group plays with TrapLink.
 * Fast Items (Title Screen and In-Game Options Menus)
   * If Fast Items is on, then you will receive items as fast as the game will allow and notifications will be queued for viewing. If Fast Items is off, the items themselves will be queued for receipt.
-* Skip Cutscenes (Title Screen Options Menus)
-  * If Skip Cutscenes is on when a file is started, most skippable cutscenes will be skipped. If Skip Cutscenes is off, then only a limited number of cutscenes that can block progress will be skipped.
+* Enemy Randomizer (Title Screen Options Menu)
+  * If Enemy Randomizer is on, enemies are replaced by random other enemies.
 
 ## Contributing
 

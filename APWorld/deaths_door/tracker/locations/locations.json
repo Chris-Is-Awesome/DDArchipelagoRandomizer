@@ -573,6 +573,21 @@
                 ]
             },
             {
+                "name": "Beat the Lord of Doors",
+                "map_locations": [
+                    {
+                        "map": "hall_of_doors",
+                        "x": 445.0350000000001,
+                        "y": 226.728125
+                    }
+                ],
+                "sections": [
+                    {
+                        "name": "Beat the Lord of Doors"
+                    }
+                ]
+            },
+            {
                 "name": "Hall of Doors - Surveillance Device",
                 "map_locations": [
                     {
@@ -1684,6 +1699,21 @@
                 "sections": [
                     {
                         "name": "Estate of the Urn Witch - Green Ancient Tablet of Knowledge (Life Seeds)"
+                    }
+                ]
+            },
+            {
+                "name": "Open the Green Ancient Tablet Door",
+                "map_locations": [
+                    {
+                        "map": "estate_of_the_urn_witch",
+                        "x": 92.25926875000005,
+                        "y": 425.76588749999996
+                    }
+                ],
+                "sections": [
+                    {
+                        "name": "Open the Green Ancient Tablet Door"
                     }
                 ]
             },

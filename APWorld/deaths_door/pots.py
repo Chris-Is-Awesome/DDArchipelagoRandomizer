@@ -16,6 +16,7 @@ from typing_extensions import override
 from rule_builder.rules import Rule
 
 from .events import DeathsDoorEventLocationName as EL
+from .locations import DeathsDoorLocationName as L
 
 if TYPE_CHECKING:
     from BaseClasses import CollectionState
@@ -23,6 +24,13 @@ if TYPE_CHECKING:
 
 PLANTED_POTS_DATASTORAGE_KEY = "{player}_{team}_deathsdoor_planted_pots"
 PLANTED_POT_EVENT = "Planted Pot (Tracker)"
+
+# Goal locations that turn into goal events: (map, tracker pin that replaces their pin on that map)
+GOAL_PINS: dict[L, tuple[str, str]] = {
+    L.RUSTY_BELLTOWER_KEY: ("hall_of_doors", "Beat the Lord of Doors"),
+    L.GREEN_ANCIENT_TABLET_OF_KNOWLEDGE: ("estate_of_the_urn_witch", "Open the Green Ancient Tablet Door"),
+}
+GOAL_PIN_EVENT = "Goal Pin (Tracker)"
 
 # player -> ids of pots planted in, filled by Universal Tracker only
 PLANTED_POTS: dict[int, set[str]] = {}

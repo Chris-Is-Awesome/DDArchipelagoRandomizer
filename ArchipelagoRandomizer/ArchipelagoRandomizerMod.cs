@@ -98,6 +98,7 @@ internal class ArchipelagoRandomizerMod
 		SceneManager.sceneLoaded -= ItemRandomizer.Instance.TriggerGroveofSpiritsDoorCheck;
 		SceneManager.sceneLoaded -= CutsceneFlags.RemoveOfficeBlocker;
 		SceneManager.sceneLoaded -= CutsceneFlags.ActivateShopKeep;
+		SceneManager.sceneLoaded -= CutsceneFlags.SkipLateGameStoryCutscenes;
 		CutsceneFlags.skippedCutscenes = false;
 		Object.Destroy(archipelagoRandomizer);
 		Archipelago.Instance.Disconnect();

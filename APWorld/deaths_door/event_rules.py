@@ -25,8 +25,9 @@ if TYPE_CHECKING:
 
 pot_specific_rules: dict[EL: Rule["DeathsDoorWorld"]] = {
     EL.POT_CATACOMBS_ROOM_2: Has(I.FIRE),
+    EL.POT_FIRE_SILENT_SERVANT: Has(I.FIRE),  # behind a spider web in the Crypt
     EL.POT_BOMB_SILENT_SERVANT: Has(I.BOMB),
-    EL.POT_MANOR_IMP_LOFT: Has(I.FIRE),  ##TODO: Check?
+    EL.POT_MANOR_IMP_LOFT: Has(I.FIRE),
     EL.POT_HOOKSHOT_SILENT_SERVANT: Has(I.LEVER_HOOKSHOT_SILENT_SERVANT),
     EL.POT_LOCKSTONE_WEST_KEYED_CROW: KeyDoor(I.PINK_KEY, 5, "ffort_key2"),
     EL.POT_FORTRESS_MAIN_GATE: Has(I.BOMB),

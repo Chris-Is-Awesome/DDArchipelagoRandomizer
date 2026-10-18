@@ -23,6 +23,21 @@ public static class CutsceneFlags
         "frog_boss_wall_chat", "frog_dung_meet_1", "watched_frogwall", "frog_boss_swim_chat", "frog_dung_meet_3", "watched_frogswim", "frog_boss_sewer_chat", "frog_dung_meet_2", "watched_frogsewer", "frog_wall_chat_last", "frog_dung_meet_last", "frog_ghoul_intro", "c_swamp_intro"];
 
 
+    // Late-game dialogue that is only watched in one place, so it is safe to mark as watched as soon as a save is
+    // loaded: the Grey Crow and Death in the void behind Death's Door (the game itself skips these when you retry
+    // the Grey Crow fight), the Lord of Doors' monologue before and during the final fight, and the Chandler's
+    // chat after meeting the Lord of Doors. Unlike the list above these are also skipped on saves already under way.
+    private static readonly string[] lateGameCutscenes =
+        ["cts_death1", "watched_death_expo", "crowboss_intro_watched",
+         "finallod_intro", "lod_demon1", "lod_demon2", "lod_demon3", "lod_demon4", "lod_demon5",
+         "handler_lod_meet"];
+
+    // Late-game cutscenes whose key also moves the story on, so they are only marked as watched once the game
+    // would play them (see SkipLateGameStoryCutscenes)
+    private static readonly string graveyardScene = "lvl_Graveyard";
+    private static readonly string silentServantsScene = "lvl_SilentServants";
+    private static readonly string crowCutscenesPath = "MainRoom/_CONTENTS/CrowCutscenesNEW";
+
     private static void SkipCutsceneSet(string[] cutsceneList)
     {
         foreach (string cutsceneKey in cutsceneList)
@@ -57,6 +72,68 @@ public static class CutsceneFlags
         }
     }
 
+    // Marks a key as unlocked in the save and in the scene that has just loaded: most key objects only read the
+    // save when they wake up, which has already happened by the time sceneLoaded runs
+    private static void SetKeyInLoadedScene(Scene scene, string cutsceneKey)
+    {
+        SetCutsceneToState(cutsceneKey, true);
+        foreach (BaseKey key in Resources.FindObjectsOfTypeAll<BaseKey>())
+        {
+            if (key.uniqueId == cutsceneKey && key.gameObject.scene == scene)
+            {
+                key.active = true;
+            }
+        }
+    }
+
+    // With Skip Cutscenes on, skip the story cutscenes of the late game once they are due, so the game goes
+    // straight to the state it would be in after watching them
+    internal static void SkipLateGameStoryCutscenes(Scene scene, LoadSceneMode _)
+    {
+        try
+        {
+            GameSave save = GetGameSave();
+            if (scene.name != hallOfDoorsScene && save.IsKeyUnlocked("c_oldcrowdead") && !save.IsKeyUnlocked("deathfreed_cutscene_watched"))
+            {
+                // The crows' cutscene in the Hall of Doors after the Grey Crow fight. Marked as watched before the
+                // Hall of Doors loads, so the hall wakes up in its after-cutscene state. That cutscene is also what
+                // opens the door to the Lord of Doors' throne room, so open it the way the game's own fallback does.
+                Logger.Log("Skipping the crows' cutscene in the Hall of Doors after the Grey Crow fight");
+                SetCutsceneToState("deathfreed_cutscene_watched", true);
+                SetCutsceneToState("sdoor_LoDfinal", true);
+            }
+            if (scene.name == graveyardScene)
+            {
+                // Death's Door opening with all three Giant Souls (the Grey Crow opens it): the door is then simply open
+                CombinedKey allSouls = PathUtil.GetByPath(scene.name, $"{crowCutscenesPath}/KEY:allsouls").GetComponent<CombinedKey>();
+                if (!save.IsKeyUnlocked("door_open_cutscene") && allSouls != null && allSouls.checkUnlocked())
+                {
+                    Logger.Log("Skipping the Death's Door opening cutscene");
+                    SetKeyInLoadedScene(scene, "door_open_cutscene");
+                }
+                // Death's talk at the door after the Grey Crow fight
+                if (save.IsKeyUnlocked("c_oldcrowdead") && !save.IsKeyUnlocked("death_post_dd_cutscene"))
+                {
+                    Logger.Log("Skipping Death's cutscene after the Grey Crow fight");
+                    SetKeyInLoadedScene(scene, "death_post_dd_cutscene");
+                }
+            }
+            else if (scene.name == silentServantsScene)
+            {
+                // The Lord of Doors' speech before the gauntlet in his throne room
+                if (save.IsKeyUnlocked("c_oldcrowdead") && !save.IsKeyUnlocked("lod_gauntlet_intro_done"))
+                {
+                    Logger.Log("Skipping the Lord of Doors gauntlet intro");
+                    SetKeyInLoadedScene(scene, "lod_gauntlet_intro_done");
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Logger.LogError($"Could not skip late-game cutscenes in {scene.name}: {e}");
+        }
+    }
+
     [HarmonyPatch]
     private class Patches
     {
@@ -75,9 +152,16 @@ public static class CutsceneFlags
                 SceneManager.sceneLoaded += ActivateShopKeep;
                 if (Archipelago.Instance.apConfig.SkipCutscenes)
                 {
-                    if (!GameSave.GetSaveData().IsKeyUnlocked("cts_handler")) // Only queue GoS door to trigger if Chandler scene has not already been watched/skipped
+                    SkipCutsceneSet(lateGameCutscenes);
+                    SceneManager.sceneLoaded += SkipLateGameStoryCutscenes;
+                }
+                if (!GameSave.GetSaveData().IsKeyUnlocked("cts_handler")) // Chandler scene not watched/skipped yet
+                {
+                    // Send the Grove of Spirits Door check on arriving in the Hall of Doors whether or not cutscenes
+                    // are skipped, instead of waiting for the Chandler cutscene to play
+                    ItemRandomizer.Instance.QueueTriggerGroveOfSpiritsDoorCheck();
+                    if (Archipelago.Instance.apConfig.SkipCutscenes)
                     {
-                        ItemRandomizer.Instance.QueueTriggerGroveOfSpiritsDoorCheck();
                         SkipCutsceneSet(optionalCutscenes);
                     }
                 }
