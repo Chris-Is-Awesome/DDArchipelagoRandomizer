@@ -66,6 +66,7 @@ public class Plugin : BaseUnityPlugin
 
 	private void Update()
 	{
+		UIManager.ShowPendingNotifications();
 		OnUpdate?.Invoke();
 	}
 

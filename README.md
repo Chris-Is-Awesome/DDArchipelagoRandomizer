@@ -88,6 +88,7 @@ These are set in the game's Options menu. All of them are off by default. They a
   * Most of these are decided when a new save file is started. The late-game story scenes are skipped whenever Skip Cutscenes is on, also on saves already under way: the Grey Crow opening Death's Door, the Grey Crow and Death in the void, Death's talk afterwards, the crows' scene in the Hall of Doors, and the Lord of Doors' speeches. The ending after the Lord of Doors and the credits still play.
 * Deathlink (Title Screen Options Menu)
   * If Deathlink is on, you send a Deathlink when you die in game, and you die when you receive a Deathlink from another player with Deathlink on.
+  * A received Deathlink waits until you can take damage (not during cutscenes, menus, rolls or invincibility frames), and the game shows who caused it. Deathlinks that arrive while you are dead or within 10 seconds of a death are ignored.
 * TrapLink (Title Screen Options Menu)
   * If TrapLink is on, traps that other TrapLink players receive are also sent to you (and yours to them). Traps from other games are converted to a Death's Door trap; for example a "Tiny Trap" makes you invisible for a while. They show up as received from the server. Leave this off unless your group plays with TrapLink.
 * Fast Items (Title Screen and In-Game Options Menus)

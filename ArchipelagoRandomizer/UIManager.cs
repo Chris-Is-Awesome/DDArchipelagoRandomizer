@@ -2,6 +2,7 @@
 using DDoor.ArchipelagoRandomizer.UI;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using UnityEngine;
@@ -18,7 +19,23 @@ internal class UIManager
 	private static string UpdateVersion = "";
 	private static bool UpdateAvailable = false;
 
+	// Notifications asked for from another thread (the connection's), shown on the main thread
+	private static readonly ConcurrentQueue<string> pendingNotifications = new();
+	private static int mainThreadId = -1;
+
 	private UIManager() { }
+
+	/// <summary>
+	/// Called every frame from Plugin.Update on the main thread
+	/// </summary>
+	internal static void ShowPendingNotifications()
+	{
+		mainThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+		while (pendingNotifications.TryDequeue(out string message))
+		{
+			notificationHandler.Show(message);
+		}
+	}
 
 	public void ShowConnectionMenu()
 	{
@@ -32,6 +49,12 @@ internal class UIManager
 
 	public void ShowNotification(string message)
 	{
+		// Touching UI from another thread corrupts it and can crash the game
+		if (System.Threading.Thread.CurrentThread.ManagedThreadId != mainThreadId)
+		{
+			pendingNotifications.Enqueue(message);
+			return;
+		}
 		notificationHandler.Show(message);
 	}
 

@@ -239,7 +239,8 @@ internal class Archipelago
 		Session.Socket.SocketClosed -= OnSocketClosed;
 		Session = null;
 
-		if (PlayerGlobal.instance != null)
+		// This runs on the connection's thread: compare without Unity's object check, which needs the main thread
+		if ((object)PlayerGlobal.instance != null)
 		{
 			UIManager.Instance.ShowNotification("You were disconnected from Archipelago. Return to title screen to reconnect.\nAny items obtained now will be sent once you reconnect.");
 		}
