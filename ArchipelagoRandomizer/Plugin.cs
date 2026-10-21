@@ -50,6 +50,7 @@ public class Plugin : BaseUnityPlugin
 			harmony = new Harmony("deathsdoor.archipelagorandomizer");
 			harmony.PatchAll();
 			ShopAndPlanting.Init();
+			PauseTracker.Init();
 			UIManager.Instance.AddOptionsMenuItems();
 			UIManager.Instance.CheckPluginVersion();
 

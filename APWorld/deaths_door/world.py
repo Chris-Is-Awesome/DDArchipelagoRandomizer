@@ -64,9 +64,10 @@ from .jefferson import (
 )
 from .rules import Has, set_location_rules, deaths_door_location_rules
 from worlds.AutoWorld import World, WebWorld
-from BaseClasses import MultiWorld, Region, Location, Item, ItemClassification, Tutorial
+from BaseClasses import MultiWorld, Region, Location, Item, ItemClassification, Tutorial, CollectionState
 
 from .tracker import tracker_world
+from .route import logical_path
 from .pots import POTS, PLANTED_POTS, PLANTED_POTS_DATASTORAGE_KEY, PLANTED_POT_EVENT, PotPlanted, GOAL_PINS, GOAL_PIN_EVENT
 from .json_generator import (
     generate_rule_json,
@@ -720,6 +721,10 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
         self.entrance_pairings: dict[str, str] = {}
         connect_entrances_function(self)
     
+    def get_logical_path(self, dest_name: str, state: CollectionState) -> list | None:
+        """Universal Tracker's /get_logical_path: the doors to take, in order, with where each one leads"""
+        return logical_path(self, dest_name, state)
+
     def reconnect_found_entrances(self, found_key: str, data_storage_value) -> None:
         if found_key.endswith("_deathsdoor_planted_pots"):
             # Pots the player planted in turn grey on the tracker map

@@ -376,28 +376,11 @@ internal class Archipelago
 		Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_map"] = map;
     }
 
-	internal void StoreFoundEntrance(string newEntrance)
-    {
-		// Retrieves existing found entrances from DataStorage for same slot co-op, restarting save files, etc.
-		if (!IsConnected())
-		{
-			return;
-		}
-		JArray foundEntrances;
-		if (Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"] != null)
-		{
-			foundEntrances = Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"];
-		}
-		else
-		{
-			foundEntrances = JArray.FromObject(new List<string>());
-		}
-		if (!foundEntrances.Any(e => e.Value<string>() == newEntrance))
-		{
-			foundEntrances.Add(newEntrance);
-			Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"] = JArray.FromObject(foundEntrances);
-		}		
-    }
+	internal const string FoundEntrancesKey = "deathsdoor_found_entrances";
+
+	// Read by Universal Tracker to connect the doors you have been through. Also includes what other games on the
+	// same slot found (same slot co-op, restarted save files): the stored list is merged in.
+	internal void StoreFoundEntrance(string newEntrance) => AddToStoredList(FoundEntrancesKey, [newEntrance]);
 
 	// Read by Universal Tracker (apworld 0.4.0+) so doors already opened stop needing every key of their colour
 	internal void StoreOpenedKeyDoors(List<string> openedDoors) => AddToStoredList("deathsdoor_opened_key_doors", openedDoors);
@@ -433,6 +416,28 @@ internal class Archipelago
 			known.UnionWith(entries);
 		}
 		WriteStoredList(key, known);
+	}
+
+	/// <summary>
+	/// What this session knows of a stored list (slot and team prefixed). The first call starts fetching it from the
+	/// server, so it can be empty or partial until that arrives.
+	/// </summary>
+	internal HashSet<string> GetStoredList(string keySuffix)
+	{
+		if (!IsConnected())
+		{
+			return new HashSet<string>();
+		}
+		string key = $"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_{keySuffix}";
+		lock (storedListCache)
+		{
+			if (!storedListCache.TryGetValue(key, out HashSet<string> known))
+			{
+				known = storedListCache[key] = new HashSet<string>();
+				FetchStoredList(key, known);
+			}
+			return new HashSet<string>(known);
+		}
 	}
 
 	private void FetchStoredList(string key, HashSet<string> known)

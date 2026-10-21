@@ -74,6 +74,7 @@ Only the person generating the multiworld needs the apworld, but the [Universal 
 
 ### Recommendations
 - Use [Universal Tracker](https://github.com/FarisTheAncient/Archipelago/releases) to see which locations are in logic. It includes maps of every area. Universal Tracker needs the apworld installed.
+  - To find your way with randomized entrances, type `/get_logical_path <place>` in Universal Tracker, for example `/get_logical_path Overgrown Ruins Door` or a location name. It lists the doors to take from the Hall of Doors, in order, and where each one leads, using only doors you have already been through.
 - Keep the Text Client (from the Archipelago Launcher) open next to the game to see what you send and receive in more detail.
 - In small multiworlds, leave `early_important_item` on `early` or change it to `local_early`. This makes generation less likely to fail.
 
@@ -95,6 +96,11 @@ These are set in the game's Options menu. All of them are off by default. They a
   * If Fast Items is on, you receive items as fast as the game allows and their notifications are queued. If it is off, the items themselves are queued.
 * Enemy Randomizer (Title Screen Options Menu)
   * If Enemy Randomizer is on, enemies are replaced by random other enemies.
+
+### Door and stat tracker
+While the game is paused, press Tab (keyboard) or Y (controller) to open a panel with:
+* With entrance randomization on, the randomized doors of the area you are in and where each leads once you have been through it (with coupled doors, also the way back). Press Page Up / Page Down or the triggers to look at other areas.
+* With Shop Upgrades on, the level of each stat you have received, next to how many of its upgrades you bought. The shop's bars show what you bought; your stats go up with the Progressive items you receive. The shop's description panel also shows your current level.
 
 ## yaml Options
 These are set in your yaml before generating. The template yaml describes each option too.

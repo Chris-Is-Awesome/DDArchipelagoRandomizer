@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
@@ -109,6 +109,12 @@ internal static class ShopAndPlanting
 
 	private static int Purchased(string statId) => GameSave.GetSaveData().GetCountKey(PurchasedKey(statId));
 
+	/// <summary>Upgrades bought in the shop for a stat (with Shop Upgrades on, these are checks)</summary>
+	internal static int PurchasedCount(string statId) => Purchased(statId);
+
+	/// <summary>The stat's actual level: the Progressive items received for it</summary>
+	internal static int StatLevel(string statId) => Inventory.instance?.GetItem(statId)?.stackCount ?? 0;
+
 	/// <summary>Sends a check for one of the new (non-ItemChanger) locations, at most once per save.</summary>
 	private static void CheckLocation(string location)
 	{
@@ -210,32 +216,39 @@ internal static class ShopAndPlanting
 	/// <summary>The next upgrade of a stat in the shop: what it holds, and a hint for it</summary>
 	private static void ShowNextUpgrade(UI_StatUpgrade cell)
 	{
-		if (!IsApStat(cell) || !shopHints || cell.itemInfoTextArea == null)
+		if (!IsApStat(cell) || cell.itemInfoTextArea == null)
 		{
 			return;
 		}
 		// The game doesn't always rewrite the text (dontUpdateText), so drop what was added last time first
 		string text = cell.itemInfoTextArea.text ?? "";
 		int previous = text.IndexOf(NextUpgradeSeparator);
-		cell.itemInfoTextArea.text = previous >= 0 ? text.Substring(0, previous) : text;
+		text = previous >= 0 ? text.Substring(0, previous) : text;
 
+		// The bar shows what was bought; the stat itself goes up with received Progressive items
+		string added = $"Your {StatNames[cell.itemId]}: <color=#FFD27A>level {StatLevel(cell.itemId)}</color> (from received items)";
 		int purchased = Purchased(cell.itemId);
-		if (purchased >= UpgradesPerStat)
+		if (shopHints)
 		{
-			cell.itemInfoTextArea.text += $"{NextUpgradeSeparator}All upgrades bought.";
-			return;
+			if (purchased >= UpgradesPerStat)
+			{
+				added += "\nAll upgrades bought.";
+			}
+			else
+			{
+				string location = ShopLocation(cell.itemId, purchased + 1);
+				IC.SaveData icSaveData = IC.SaveData.Open();
+				if (icSaveData != null && icSaveData.UnnamedPlacements.TryGetValue(location, out IC.Item item))
+				{
+					added += $"\nNext upgrade: <color=#FFD27A>{item.DisplayName}</color>";
+					if (hintedLocations.Add(location))
+					{
+						Archipelago.Instance.HintLocation(location);
+					}
+				}
+			}
 		}
-		string location = ShopLocation(cell.itemId, purchased + 1);
-		IC.SaveData icSaveData = IC.SaveData.Open();
-		if (icSaveData == null || !icSaveData.UnnamedPlacements.TryGetValue(location, out IC.Item item))
-		{
-			return;
-		}
-		cell.itemInfoTextArea.text += $"{NextUpgradeSeparator}Next upgrade: <color=#FFD27A>{item.DisplayName}</color>";
-		if (hintedLocations.Add(location))
-		{
-			Archipelago.Instance.HintLocation(location);
-		}
+		cell.itemInfoTextArea.text = text + NextUpgradeSeparator + added;
 	}
 
 	/// <summary>Received "Progressive Strength" etc.</summary>
