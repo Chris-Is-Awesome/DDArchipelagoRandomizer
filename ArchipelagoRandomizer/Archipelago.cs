@@ -139,6 +139,23 @@ internal class Archipelago
 		Session.Locations.CompleteLocationChecks(locationId);
 	}
 
+	/// <summary>Hints a location (shown in everyone's hint list, announced once)</summary>
+	public void HintLocation(string locationName)
+	{
+		if (!isConnected)
+		{
+			return;
+		}
+		long locationId = Locations.ItemChangerLocationToAPLocationID(locationName);
+		Session.Locations.ScoutLocationsAsync(HintCreationPolicy.CreateAndAnnounceOnce, locationId).ContinueWith(task =>
+		{
+			if (task.IsFaulted)
+			{
+				Logger.LogWarning($"Couldn't hint {locationName}: {task.Exception?.GetBaseException().Message}");
+			}
+		});
+	}
+
 	public void SendCompletion()
 	{
 		if (hasCompleted || !isConnected)
@@ -222,7 +239,8 @@ internal class Archipelago
 		Session.Socket.SocketClosed -= OnSocketClosed;
 		Session = null;
 
-		if (PlayerGlobal.instance != null)
+		// This runs on the connection's thread: compare without Unity's object check, which needs the main thread
+		if ((object)PlayerGlobal.instance != null)
 		{
 			UIManager.Instance.ShowNotification("You were disconnected from Archipelago. Return to title screen to reconnect.\nAny items obtained now will be sent once you reconnect.");
 		}
@@ -358,28 +376,11 @@ internal class Archipelago
 		Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_map"] = map;
     }
 
-	internal void StoreFoundEntrance(string newEntrance)
-    {
-		// Retrieves existing found entrances from DataStorage for same slot co-op, restarting save files, etc.
-		if (!IsConnected())
-		{
-			return;
-		}
-		JArray foundEntrances;
-		if (Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"] != null)
-		{
-			foundEntrances = Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"];
-		}
-		else
-		{
-			foundEntrances = JArray.FromObject(new List<string>());
-		}
-		if (!foundEntrances.Any(e => e.Value<string>() == newEntrance))
-		{
-			foundEntrances.Add(newEntrance);
-			Session.DataStorage[$"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_deathsdoor_found_entrances"] = JArray.FromObject(foundEntrances);
-		}		
-    }
+	internal const string FoundEntrancesKey = "deathsdoor_found_entrances";
+
+	// Read by Universal Tracker to connect the doors you have been through. Also includes what other games on the
+	// same slot found (same slot co-op, restarted save files): the stored list is merged in.
+	internal void StoreFoundEntrance(string newEntrance) => AddToStoredList(FoundEntrancesKey, [newEntrance]);
 
 	// Read by Universal Tracker (apworld 0.4.0+) so doors already opened stop needing every key of their colour
 	internal void StoreOpenedKeyDoors(List<string> openedDoors) => AddToStoredList("deathsdoor_opened_key_doors", openedDoors);
@@ -387,7 +388,12 @@ internal class Archipelago
 	// Read by Universal Tracker (apworld 0.4.0+) to grey out planted pots on the map
 	internal void StorePlantedPots(List<string> plantedPots) => AddToStoredList("deathsdoor_planted_pots", plantedPots);
 
-	/// <summary>Adds entries to a list in data storage (slot and team prefixed), writing only when something is new.</summary>
+	/// <summary>
+	/// Adds entries to a list in data storage (slot and team prefixed), writing only when something is new.
+	/// Never waits for the server: what is already stored is fetched in the background the first time a key is used
+	/// and merged into later writes. (Reading it synchronously froze the game for a server round trip every time a
+	/// new pot was planted.)
+	/// </summary>
 	private void AddToStoredList(string keySuffix, List<string> entries)
 	{
 		if (!IsConnected())
@@ -395,31 +401,76 @@ internal class Archipelago
 			return;
 		}
 		string key = $"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_{keySuffix}";
-		// Skip the server round trip when everything was already written this session
-		if (!storedListCache.TryGetValue(key, out HashSet<string> written))
+		HashSet<string> known;
+		lock (storedListCache)
 		{
-			written = storedListCache[key] = new HashSet<string>();
-		}
-		if (entries.All(written.Contains))
-		{
-			return;
-		}
-		JArray stored = Session.DataStorage[key];
-		List<string> merged = stored == null ? new List<string>() : stored.ToObject<List<string>>() ?? new List<string>();
-		bool changed = false;
-		foreach (string entry in entries)
-		{
-			if (!merged.Contains(entry))
+			if (!storedListCache.TryGetValue(key, out known))
 			{
-				merged.Add(entry);
-				changed = true;
+				known = storedListCache[key] = new HashSet<string>();
+				FetchStoredList(key, known);
 			}
+			if (entries.All(known.Contains))
+			{
+				return;
+			}
+			known.UnionWith(entries);
 		}
-		if (changed)
+		WriteStoredList(key, known);
+	}
+
+	/// <summary>
+	/// What this session knows of a stored list (slot and team prefixed). The first call starts fetching it from the
+	/// server, so it can be empty or partial until that arrives.
+	/// </summary>
+	internal HashSet<string> GetStoredList(string keySuffix)
+	{
+		if (!IsConnected())
 		{
-			Session.DataStorage[key] = JArray.FromObject(merged);
+			return new HashSet<string>();
 		}
-		written.UnionWith(merged);
+		string key = $"{Session.ConnectionInfo.Slot}_{Session.ConnectionInfo.Team}_{keySuffix}";
+		lock (storedListCache)
+		{
+			if (!storedListCache.TryGetValue(key, out HashSet<string> known))
+			{
+				known = storedListCache[key] = new HashSet<string>();
+				FetchStoredList(key, known);
+			}
+			return new HashSet<string>(known);
+		}
+	}
+
+	private void FetchStoredList(string key, HashSet<string> known)
+	{
+		Session.DataStorage[key].GetAsync<JArray>().ContinueWith(task =>
+		{
+			if (task.IsFaulted || task.Result == null || !IsConnected())
+			{
+				return;
+			}
+			List<string> stored = task.Result.ToObject<List<string>>() ?? new List<string>();
+			bool hadMore;
+			lock (storedListCache)
+			{
+				hadMore = stored.Any(entry => !known.Contains(entry)) && known.Count > 0;
+				known.UnionWith(stored);
+			}
+			// Something was written this session before the stored list arrived: write the merged list once more
+			if (hadMore)
+			{
+				WriteStoredList(key, known);
+			}
+		});
+	}
+
+	private void WriteStoredList(string key, HashSet<string> known)
+	{
+		JArray merged;
+		lock (storedListCache)
+		{
+			merged = JArray.FromObject(known.ToList());
+		}
+		Session.DataStorage[key] = merged; // sends a Set; doesn't wait for a reply
 	}
 
 	private readonly Dictionary<string, HashSet<string>> storedListCache = new();

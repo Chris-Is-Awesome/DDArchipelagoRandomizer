@@ -18,6 +18,15 @@ from ..jefferson import create_jefferson_vanilla_connections, jefferson_tag
 if TYPE_CHECKING:
     from .. import DeathsDoorWorld
 
+HALL_OF_DOORS_SCENE = "lvl_HallOfDoors"
+# Groups of the two-way transitions that are shuffled together. A Hall of Doors door may lead to any other area,
+# but not to another Hall of Doors door.
+TWO_WAY_GROUPS = (DeathsDoorConnectionGroup.STANDARD, DeathsDoorConnectionGroup.HALL_OF_DOORS)
+TWO_WAY_GROUP_LOOKUP = {
+    DeathsDoorConnectionGroup.STANDARD: [DeathsDoorConnectionGroup.STANDARD, DeathsDoorConnectionGroup.HALL_OF_DOORS],
+    DeathsDoorConnectionGroup.HALL_OF_DOORS: [DeathsDoorConnectionGroup.STANDARD],
+}
+
 
 def create_vanilla_entrances(world: "DeathsDoorWorld"):
     # Create vanilla entrances
@@ -28,12 +37,14 @@ def create_vanilla_entrances(world: "DeathsDoorWorld"):
             if scene_transition_pair[1] == None
             else EntranceType.TWO_WAY
         )
-        entrance_group = (
-            DeathsDoorConnectionGroup.ONE_WAY
-            if scene_transition_pair[1] == None
-            else DeathsDoorConnectionGroup.STANDARD
-        )
-        for scene_transition in scene_transition_pair:
+        for scene_transition, partner in zip(scene_transition_pair, reversed(scene_transition_pair)):
+            entrance_group = (
+                DeathsDoorConnectionGroup.ONE_WAY
+                if scene_transition_pair[1] == None
+                else DeathsDoorConnectionGroup.HALL_OF_DOORS
+                if partner is not None and partner.scene_name == HALL_OF_DOORS_SCENE
+                else DeathsDoorConnectionGroup.STANDARD
+            )
             if scene_transition is not None:
                 start_region: Region = world.get_region(
                     scene_transition.starting_region.value
@@ -384,7 +395,7 @@ def connect_entrances_function(world: "DeathsDoorWorld"):
                 for _exit in world.get_region(
                     scene_transition.starting_region
                 ).get_exits():
-                    if _exit.randomization_group == DeathsDoorConnectionGroup.STANDARD:
+                    if _exit.randomization_group in TWO_WAY_GROUPS:
                         entrance: Entrance = _exit
                         disconnect_entrance_for_randomization(
                             entrance, entrance.randomization_group
@@ -430,7 +441,7 @@ def connect_entrances_function(world: "DeathsDoorWorld"):
             randomize_one_ways(world)
 
             # Connections made before GER (plando) stay; everything else is undone between attempts
-            randomized_groups = (DeathsDoorConnectionGroup.STANDARD, DeathsDoorConnectionGroup.JEFFERSON)
+            randomized_groups = (*TWO_WAY_GROUPS, DeathsDoorConnectionGroup.JEFFERSON)
             kept_connections = {
                 (_exit.parent_region.name, _exit.connected_region.name)
                 for region in world.get_regions()
@@ -446,19 +457,14 @@ def connect_entrances_function(world: "DeathsDoorWorld"):
                     final_result = randomize_entrances(
                         world,
                         coupled,
-                        {
-                            DeathsDoorConnectionGroup.STANDARD: [
-                                DeathsDoorConnectionGroup.STANDARD
-                            ]
-                        },
+                        TWO_WAY_GROUP_LOOKUP,
                         er_targets=sorted(
                             [
                                 entrance
                                 for region in world.get_regions()
                                 for entrance in region.entrances
                                 if not entrance.parent_region
-                                and entrance.randomization_group
-                                == DeathsDoorConnectionGroup.STANDARD
+                                and entrance.randomization_group in TWO_WAY_GROUPS
                             ],
                             key=lambda x: x.name,
                         ),
@@ -468,8 +474,7 @@ def connect_entrances_function(world: "DeathsDoorWorld"):
                                 for region in world.get_regions()
                                 for ex in region.exits
                                 if not ex.connected_region
-                                and ex.randomization_group
-                                == DeathsDoorConnectionGroup.STANDARD
+                                and ex.randomization_group in TWO_WAY_GROUPS
                             ],
                             key=lambda x: x.name,
                         ),

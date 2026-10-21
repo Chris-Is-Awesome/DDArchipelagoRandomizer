@@ -24,6 +24,7 @@ class DeathsDoorEventName(str, Enum):
     LIT_WATCHTOWER_TORCH = "Old Watchtowers - Light a Torch"
     MUSHROOM_DUNGEON_MAIN_GATE = "Can Open the Mushroom Dungeon Main Gate"
     RESCUE_GRUNT = "Mushroom Dungeon - Rescue Grunt"
+    REACHED_FROG_KING_THRONE = "Throne of the Frog King - Reach the Throne Room"
     CASTLE_LOCKSTONE_LORD_LOCKSTONE = "Castle Lockstone - Light Lord Lockstone Lamp"
     CASTLE_LOCKSTONE_LORD_OPENGATE = "Castle Lockstone - Light Lord Opengate Lamp"
     CASTLE_LOCKSTONE_LORD_DEADBOLT = "Castle Lockstone - Light Lord Deadbolt Lamp"
@@ -58,6 +59,7 @@ class DeathsDoorEventLocationName(str, Enum):
     WATCHTOWER_BEFORE_ICE_SKATING_TORCH = "Old Watchtowers - Before Ice Skating Torch"
     MUSHROOM_DUNGEON_MAIN_GATE = "Mushroom Dungeon - Main Gate"
     RESCUE_GRUNT = "Mushroom Dungeon - Grunt"
+    REACHED_FROG_KING_THRONE = "Throne of the Frog King - Throne Room"
     CASTLE_LOCKSTONE_LORD_LOCKSTONE = "Castle Lockstone - Lord Lockstone Lamp"
     CASTLE_LOCKSTONE_LORD_OPENGATE = "Castle Lockstone - Lord Opengate Lamp"
     CASTLE_LOCKSTONE_LORD_DEADBOLT = "Castle Lockstone - Lord Deadbolt Lamp"
@@ -221,6 +223,13 @@ event_location_table: list[DeathsDoorEventLocationData] = [
         R.MUSHROOM_DUNGEON_LOBBY,
         DeathsDoorEventName.RESCUE_GRUNT,
     ),
+    # Grunt's Old Mask needs Grunt rescued and the Frog King's throne room reached (an event instead of a region
+    # check in the location rule, which the tracker evaluated badly)
+    DeathsDoorEventLocationData(
+        DeathsDoorEventLocationName.REACHED_FROG_KING_THRONE,
+        R.THRONE_OF_THE_FROG_KING,
+        DeathsDoorEventName.REACHED_FROG_KING_THRONE,
+    ),
     DeathsDoorEventLocationData(
         DeathsDoorEventLocationName.CASTLE_LOCKSTONE_LORD_LOCKSTONE,
         R.CASTLE_LOCKSTONE_LORD_LOCKSTONE,
@@ -326,7 +335,7 @@ pot_table: list[DeathsDoorEventLocationData] = [
     ),
     DeathsDoorEventLocationData(
         DeathsDoorEventLocationName.POT_MANOR_IMP_LOFT,
-        R.CERAMIC_MANOR_MAIN_LOBBY,
+        R.CERAMIC_MANOR_LEFT,  # same area as the Imp Loft crow and soul orb
         DeathsDoorEventName.PLANTED_SEED,
     ),
     DeathsDoorEventLocationData(

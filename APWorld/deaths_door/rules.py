@@ -79,8 +79,7 @@ deaths_door_location_rules: dict[L, Rule["DeathsDoorWorld"] | None] = {
     L.TOKEN_OF_DEATH: Has(I.HOOKSHOT),
     L.MALFORMED_SEED: Has(I.HOOKSHOT),
     L.CORRUPTED_ANTLER: Has(I.BOMB) & KeyDoor(I.GREEN_KEY, 4, "fstlock_4"),
-    L.GRUNTS_OLD_MASK: Has(E.RESCUE_GRUNT)
-    & CanReachRegion(R.THRONE_OF_THE_FROG_KING),  ##TODO: FIX THIS
+    L.GRUNTS_OLD_MASK: HasAll(E.RESCUE_GRUNT, E.REACHED_FROG_KING_THRONE),
     L.ANCIENT_DOOR_SCALE_MODEL: Has(I.FIRE),
     L.MODERN_DOOR_SCALE_MODEL: Has(I.HOOKSHOT)
     | CanReachRegion(R.POST_BOMB_AVARICE)

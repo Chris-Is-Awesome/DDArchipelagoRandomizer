@@ -81,8 +81,7 @@ internal class ItemRandomizer : MonoBehaviour
 			};
 			item = tempItem;
 		}
-		else if (itemName.StartsWith("Progressive ") &&
-			ShopAndPlanting.StatNames.FirstOrDefault(kvp => itemName == $"Progressive {kvp.Value}").Key is string statId)
+		else if (ShopAndPlanting.StatIdForItem(itemName) is string statId)
 		{
 			item = new ShopAndPlanting.StatUpgradeItem(statId);
 		}
@@ -183,6 +182,8 @@ internal class ItemRandomizer : MonoBehaviour
 				? "AP"
 				: (itemPlacement.Item is "Bomb" or "Fire" or "Hookshot")
 				? itemPlacement.Item
+				: ShopAndPlanting.StatIdForItem(itemPlacement.Item) is string statId
+				? ShopAndPlanting.StatIconName(statId)
 				: predefinedItem?.Icon ?? "Unknown";
 
 			// Change name of item so it displays receiving player's name in message

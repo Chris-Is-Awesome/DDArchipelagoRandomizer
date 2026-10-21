@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
@@ -51,6 +51,9 @@ internal static class ShopAndPlanting
 	];
 
 	private static bool shopEnabled;
+	private static bool shopHints;
+	// Shop locations already hinted this session (the server only announces a hint once anyway)
+	private static readonly HashSet<string> hintedLocations = new();
 	private static Dictionary<string, List<int>> shopPrices = new();
 	private static List<int> plantingThresholds = new();
 
@@ -68,6 +71,9 @@ internal static class ShopAndPlanting
 	private static void ReadSlotData()
 	{
 		shopEnabled = Archipelago.Instance.TryGetSlotData("shop_upgrades", out object shop) && shop is bool b && b;
+		// Seeds from apworlds before 0.4.2 have no shop_hints entry; show the items there too
+		shopHints = !Archipelago.Instance.TryGetSlotData("shop_hints", out object hints) || hints is not bool h || h;
+		hintedLocations.Clear();
 		shopPrices = new();
 		if (Archipelago.Instance.TryGetSlotData("shop_price_table", out object prices) && prices is JObject table)
 		{
@@ -81,7 +87,7 @@ internal static class ShopAndPlanting
 		{
 			plantingThresholds = arr.ToObject<List<int>>();
 		}
-		Logger.Log($"Shop upgrades: {shopEnabled}, planting checks at: {string.Join(", ", plantingThresholds)}");
+		Logger.Log($"Shop upgrades: {shopEnabled}, shop hints: {shopHints}, planting checks at: {string.Join(", ", plantingThresholds)}");
 	}
 
 	private static void SyncAll()
@@ -102,6 +108,12 @@ internal static class ShopAndPlanting
 	private static string PurchasedKey(string statId) => $"AP_ShopPurchased-{statId}";
 
 	private static int Purchased(string statId) => GameSave.GetSaveData().GetCountKey(PurchasedKey(statId));
+
+	/// <summary>Upgrades bought in the shop for a stat (with Shop Upgrades on, these are checks)</summary>
+	internal static int PurchasedCount(string statId) => Purchased(statId);
+
+	/// <summary>The stat's actual level: the Progressive items received for it</summary>
+	internal static int StatLevel(string statId) => Inventory.instance?.GetItem(statId)?.stackCount ?? 0;
 
 	/// <summary>Sends a check for one of the new (non-ItemChanger) locations, at most once per save.</summary>
 	private static void CheckLocation(string location)
@@ -187,17 +199,83 @@ internal static class ShopAndPlanting
 		return prices[Mathf.Clamp(purchased, 0, prices.Count - 1)];
 	}
 
+	// ---------------------------------------------------------------- icons
+	private const string StatIconPrefix = "Stat-";
+
+	/// <summary>
+	/// ItemChanger icon name for a stat: white versions of the shop's stat icons, embedded in the mod
+	/// (Resources/Item Changer Icons/Stat-*.png)
+	/// </summary>
+	internal static string StatIconName(string statId) => StatIconPrefix + statId;
+
+	internal static string StatIdForItem(string itemName) =>
+		StatNames.FirstOrDefault(kvp => itemName == $"Progressive {kvp.Value}").Key;
+
+	// ---------------------------------------------------------------- shop preview and hints
+	private const string NextUpgradeSeparator = "\n\n<size=90%>";
+	/// <summary>The next upgrade of a stat in the shop: what it holds, and a hint for it</summary>
+	private static void ShowNextUpgrade(UI_StatUpgrade cell)
+	{
+		if (!IsApStat(cell) || cell.itemInfoTextArea == null)
+		{
+			return;
+		}
+		// The game doesn't always rewrite the text (dontUpdateText), so drop what was added last time first
+		string text = cell.itemInfoTextArea.text ?? "";
+		int previous = text.IndexOf(NextUpgradeSeparator);
+		text = previous >= 0 ? text.Substring(0, previous) : text;
+
+		// The bar shows what was bought; the stat itself goes up with received Progressive items
+		string added = $"Your {StatNames[cell.itemId]}: <color=#FFD27A>level {StatLevel(cell.itemId)}</color> (from received items)";
+		int purchased = Purchased(cell.itemId);
+		if (shopHints)
+		{
+			if (purchased >= UpgradesPerStat)
+			{
+				added += "\nAll upgrades bought.";
+			}
+			else
+			{
+				string location = ShopLocation(cell.itemId, purchased + 1);
+				IC.SaveData icSaveData = IC.SaveData.Open();
+				if (icSaveData != null && icSaveData.UnnamedPlacements.TryGetValue(location, out IC.Item item))
+				{
+					added += $"\nNext upgrade: <color=#FFD27A>{item.DisplayName}</color>";
+					if (hintedLocations.Add(location))
+					{
+						Archipelago.Instance.HintLocation(location);
+					}
+				}
+			}
+		}
+		cell.itemInfoTextArea.text = text + NextUpgradeSeparator + added;
+	}
+
 	/// <summary>Received "Progressive Strength" etc.</summary>
 	internal readonly struct StatUpgradeItem(string statId) : IC.Item
 	{
 		public string DisplayName => $"Progressive {StatNames[statId]}";
-		public string Icon => "Soul";
+		public string Icon => StatIconName(statId);
 		public void Trigger() => ApplyStatUpgrade(statId);
 	}
 
 	[HarmonyPatch]
 	private static class Patches
 	{
+		// The stat's description panel also shows what the next upgrade holds (Shop Hints)
+		[HarmonyPostfix, HarmonyPatch(typeof(UICollectableCell), nameof(UICollectableCell.updateText))]
+		private static void ShowNextUpgradeText(UICollectableCell __instance)
+		{
+			try
+			{
+				ShowNextUpgrade(__instance as UI_StatUpgrade);
+			}
+			catch (System.Exception e)
+			{
+				Logger.LogError($"Couldn't show the next shop upgrade: {e}");
+			}
+		}
+
 		// Show the number of upgrades bought (not the stat level) on the shop bar
 		[HarmonyPostfix, HarmonyPatch(typeof(UI_StatUpgrade), nameof(UI_StatUpgrade.Start))]
 		private static void ShowPurchasesOnStart(UI_StatUpgrade __instance) => ShowPurchases(__instance);
@@ -257,6 +335,8 @@ internal static class ShopAndPlanting
 			{
 				Logger.LogError($"Sending shop check failed: {e}");
 			}
+			// Show the following upgrade
+			__instance.updateText();
 			return false;
 		}
 

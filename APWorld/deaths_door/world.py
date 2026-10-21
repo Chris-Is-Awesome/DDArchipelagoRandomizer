@@ -34,7 +34,7 @@ from .events import (
     DeathsDoorEventName as E,
     event_location_table,
 )
-from .event_rules import set_event_rules
+from .event_rules import set_event_rules, pot_specific_rules
 from .regions import DeathsDoorRegionName as R
 from .entrances.entrances import deathsdoor_internal_entrances
 from .entrances.randomize_transitions import (
@@ -62,12 +62,13 @@ from .jefferson import (
     create_jefferson_regions,
     create_jefferson_internal_connections,
 )
-from .rules import Has, set_location_rules
+from .rules import Has, set_location_rules, deaths_door_location_rules
 from worlds.AutoWorld import World, WebWorld
-from BaseClasses import MultiWorld, Region, Location, Item, ItemClassification, Tutorial
+from BaseClasses import MultiWorld, Region, Location, Item, ItemClassification, Tutorial, CollectionState
 
 from .tracker import tracker_world
-from .pots import POTS, PLANTED_POTS, PLANTED_POTS_DATASTORAGE_KEY, PLANTED_POT_EVENT, PotPlanted
+from .route import logical_path
+from .pots import POTS, PLANTED_POTS, PLANTED_POTS_DATASTORAGE_KEY, PLANTED_POT_EVENT, PotPlanted, GOAL_PINS, GOAL_PIN_EVENT
 from .json_generator import (
     generate_rule_json,
     generate_items_json,
@@ -75,7 +76,7 @@ from .json_generator import (
     generate_scene_transition_json,
 )
 
-deathsdoor_version = "0.4.1"
+deathsdoor_version = "0.4.2"
 
 # Below this many randomized locations, an unrandomized Soul Orb pool is randomized anyway (see generate_early)
 MIN_LOCATIONS_WITHOUT_SOUL_ORBS = 70
@@ -314,6 +315,8 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
         ]
 
     def create_regions(self) -> None:
+        # goal location -> its region, for the goal locations that became goal events
+        self.goal_event_locations: dict[L, Region] = {}
         for deathsdoor_region in R:
             region = Region(deathsdoor_region.value, self.player, self.multiworld)
             self.multiworld.regions.append(region)
@@ -334,6 +337,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
                 location = DeathsDoorLocation(self.player, location_data.name.value, None, region)
                 region.locations.append(location)
                 location.place_locked_item(self.create_event(E.LORD_OF_DOORS.value))
+                self.goal_event_locations[location_data.name] = region
                 continue
             if (
                 self.options.goal == Goal.option_green_tablet
@@ -342,6 +346,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
                 location = DeathsDoorLocation(self.player, location_data.name.value, None, region)
                 region.locations.append(location)
                 location.place_locked_item(self.create_event(E.LIFE_SEED_DOOR.value))
+                self.goal_event_locations[location_data.name] = region
                 continue
 
             # Make all locations that have not been specifically chosen in unrandomized_pools
@@ -431,12 +436,31 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
 
         if self.is_tracker():
             # Map pins for the planting pots, only in Universal Tracker (see pots.py)
+            # Each pin sits in its own small region behind the pot's own requirement (fire for spider webs, keys,
+            # ...), so the pin is only green once you can actually get to the pot.
             pot_regions = {data.name: data.region for data in event_location_table}
             for pot in POTS:
-                region = self.get_region(pot_regions[pot.logic_event].value)
+                region = Region(f"{pot.name} (Tracker)", self.player, self.multiworld)
+                self.multiworld.regions.append(region)
+                self.get_region(pot_regions[pot.logic_event].value).connect(region, f"To {pot.name}")
                 pin = DeathsDoorLocation(self.player, pot.name, None, region)
                 region.locations.append(pin)
                 pin.place_locked_item(self.create_event(PLANTED_POT_EVENT))
+
+        if self.is_tracker():
+            # A goal event in a reachable area shows as "passable" (green) on the tracker map even while the goal
+            # can't be done yet. Hide that pin and show one that only turns green once the goal's requirements are met.
+            hidden: dict[str, list[str]] = {}
+            for goal_location, region in self.goal_event_locations.items():
+                map_name, pin_name = GOAL_PINS[goal_location]
+                hidden.setdefault(map_name, []).append(goal_location.value)
+                pin_region = Region(f"{pin_name} (Tracker)", self.player, self.multiworld)
+                self.multiworld.regions.append(pin_region)
+                region.connect(pin_region, f"To {pin_name}")
+                pin = DeathsDoorLocation(self.player, pin_name, None, pin_region)
+                pin_region.locations.append(pin)
+                pin.place_locked_item(self.create_event(GOAL_PIN_EVENT))
+            self.ut_map_page_hidden_events = hidden
 
         # Shop and planting checks live in the Hall of Doors, which is always reachable
         hall = self.get_region(R.HALL_OF_DOORS_LOBBY.value)
@@ -650,7 +674,16 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
                         CanReachSoulAreas(SHOP_TIER_AREAS[level - 1]),
                     )
         if self.is_tracker():
+            for goal_location in self.goal_event_locations:
+                _, pin_name = GOAL_PINS[goal_location]
+                goal_rule = deaths_door_location_rules.get(goal_location)
+                if goal_rule is not None:
+                    self.set_rule(self.get_entrance(f"To {pin_name}"), goal_rule)
+                # never "done": the pin stays green once the goal can be completed
+                self.set_rule(self.get_location(pin_name), False_())
             for pot in POTS:
+                if pot.logic_event in pot_specific_rules:
+                    self.set_rule(self.get_entrance(f"To {pot.name}"), pot_specific_rules[pot.logic_event])
                 self.set_rule(self.get_location(pot.name), PotPlanted(pot.pot_id))
         for count in self.planting_thresholds:
             # Planting N seeds needs N seeds and N pots you can reach (each pot event needs one seed)
@@ -688,6 +721,10 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
         self.entrance_pairings: dict[str, str] = {}
         connect_entrances_function(self)
     
+    def get_logical_path(self, dest_name: str, state: CollectionState) -> list | None:
+        """Universal Tracker's /get_logical_path: the doors to take, in order, with where each one leads"""
+        return logical_path(self, dest_name, state)
+
     def reconnect_found_entrances(self, found_key: str, data_storage_value) -> None:
         if found_key.endswith("_deathsdoor_planted_pots"):
             # Pots the player planted in turn grey on the tracker map
@@ -740,6 +777,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
         slot_data["entrance_pairings"] = self.entrance_pairings
         slot_data["shop_upgrades"] = bool(self.options.shop_upgrades)
         slot_data["shop_price_table"] = self.shop_price_table
+        slot_data["shop_hints"] = bool(self.options.shop_hints)
         slot_data["planting_checks"] = self.options.planting_checks.value
         slot_data["seeds_per_planting_check"] = self.options.seeds_per_planting_check.value
         slot_data["planting_thresholds"] = self.planting_thresholds

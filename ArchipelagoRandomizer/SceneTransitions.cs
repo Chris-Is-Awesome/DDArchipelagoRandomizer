@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +30,8 @@ public static class SceneTransitions
     }
 
     private static List<SceneTransition> transitionData;
+
+    internal static IReadOnlyList<SceneTransition> All => transitionData;
 
     private static void PopulateTransitionFromJson()
     {
