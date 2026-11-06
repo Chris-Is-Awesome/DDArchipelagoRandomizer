@@ -76,7 +76,7 @@ from .json_generator import (
     generate_scene_transition_json,
 )
 
-deathsdoor_version = "0.4.2"
+deathsdoor_version = "0.4.3"
 
 # Below this many randomized locations, an unrandomized Soul Orb pool is randomized anyway (see generate_early)
 MIN_LOCATIONS_WITHOUT_SOUL_ORBS = 70
