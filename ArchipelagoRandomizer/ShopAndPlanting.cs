@@ -212,7 +212,9 @@ internal static class ShopAndPlanting
 		StatNames.FirstOrDefault(kvp => itemName == $"Progressive {kvp.Value}").Key;
 
 	// ---------------------------------------------------------------- shop preview and hints
-	private const string NextUpgradeSeparator = "\n\n<size=90%>";
+	// The shop draws the price and soul icon over the bottom right of the description box, so the added lines are
+	// kept to the left half (TextMeshPro <width>) and a bit smaller
+	private const string NextUpgradeSeparator = "\n\n<size=85%><width=50%>";
 	/// <summary>The next upgrade of a stat in the shop: what it holds, and a hint for it</summary>
 	private static void ShowNextUpgrade(UI_StatUpgrade cell)
 	{
@@ -226,7 +228,7 @@ internal static class ShopAndPlanting
 		text = previous >= 0 ? text.Substring(0, previous) : text;
 
 		// The bar shows what was bought; the stat itself goes up with received Progressive items
-		string added = $"Your {StatNames[cell.itemId]}: <color=#FFD27A>level {StatLevel(cell.itemId)}</color> (from received items)";
+		string added = $"Received: <color=#FFD27A>level {StatLevel(cell.itemId)}</color>";
 		int purchased = Purchased(cell.itemId);
 		if (shopHints)
 		{
@@ -240,7 +242,7 @@ internal static class ShopAndPlanting
 				IC.SaveData icSaveData = IC.SaveData.Open();
 				if (icSaveData != null && icSaveData.UnnamedPlacements.TryGetValue(location, out IC.Item item))
 				{
-					added += $"\nNext upgrade: <color=#FFD27A>{item.DisplayName}</color>";
+					added += $"\nNext: <color=#FFD27A>{item.DisplayName}</color>";
 					if (hintedLocations.Add(location))
 					{
 						Archipelago.Instance.HintLocation(location);
@@ -248,7 +250,7 @@ internal static class ShopAndPlanting
 				}
 			}
 		}
-		cell.itemInfoTextArea.text = text + NextUpgradeSeparator + added;
+		cell.itemInfoTextArea.text = text + NextUpgradeSeparator + added + "</width></size>";
 	}
 
 	/// <summary>Received "Progressive Strength" etc.</summary>
