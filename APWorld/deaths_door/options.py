@@ -281,8 +281,9 @@ class ShopUpgrades(Toggle):
     """Turn the 20 stat upgrades sold by the Banker (5 each of Strength, Dexterity, Haste and Magic) into checks.
     Buying an upgrade sends a check instead of raising your stat; your stats rise when you receive the matching
     "Progressive Strength/Dexterity/Haste/Magic" items.
-    Logic expects the 1st, 2nd, 3rd, 4th and 5th upgrade of a stat once you can reach 1, 2, 4, 6 and 8 areas with
-    enemies to earn souls in (the Hall of Doors has none). Each stat's prices always rise from one upgrade to the next. The Banker in the Hall of Doors and in the Camp of the Free Crows share the same stock."""
+    Logic expects the 1st, 2nd, 3rd, 4th and 5th upgrade of a stat once you can reach 1, 2, 3, 4 and 6 areas where
+    you can farm souls from respawning enemies (the Hall of Doors, the Camp of the Free Crows and Castle Lockstone don't
+    count). Each stat's prices always rise from one upgrade to the next. The Banker in the Hall of Doors and in the Camp of the Free Crows share the same stock."""
 
     internal_name = "shop_upgrades"
     display_name = "Shop Upgrades"

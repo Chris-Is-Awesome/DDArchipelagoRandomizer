@@ -12,7 +12,7 @@ Together, they take the things your character would pick up throughout the game 
 Use the mod and the apworld from the same [release](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest).
 
 > [!IMPORTANT]
-> This is in an early alpha stage! You may experience errors that disrupt play. Please report these errors in Issues here or in the Death's Door thread of the `future-game-design` forum on the Archipelago Discord (see [Contributing](#contributing) below).
+> This is in a stable beta stage! If you do experience errors that disrupt play, please report these errors in Issues here or in the Death's Door thread of the `Custom-games` forum on the Archipelago Discord (see [Contributing](#contributing) below).
 
 ## Contents
 - [Setup](#setup)
@@ -166,7 +166,7 @@ These are set in your yaml before generating. The template yaml describes each o
 ### Shop and Planting
 - **Shop Upgrades**
     - Turns the 20 stat upgrades sold by the Banker (5 each of Strength, Dexterity, Haste and Magic) into checks. Buying an upgrade sends a check; your stats go up when you receive Progressive Strength, Dexterity, Haste or Magic.
-    - Logic expects the 1st to 5th upgrade of a stat once you can reach 1, 2, 4, 6 and 8 areas with enemies to earn souls in. The Bankers in the Hall of Doors and the Camp of the Free Crows share the same stock.
+    - Logic expects the 1st to 5th upgrade of a stat once you can reach 1, 2, 3, 4 and 6 areas where you can farm souls from respawning enemies. The Hall of Doors, the Camp of the Free Crows and Castle Lockstone don't count; the Old Watchtowers count once you have the Hookshot, and the Stranded Sailor once you have the Bomb or Hookshot and have lit the lamp that opens the way from the Lost Cemetery. The Bankers in the Hall of Doors and the Camp of the Free Crows share the same stock.
 - **Shop Prices**
     - Vanilla (400, 600, 800, 1000 and 1500 souls for each stat), Shuffled (the 20 vanilla prices shuffled between the stats) or Random Range (each price between Shop Price Minimum and Shop Price Maximum). Each stat's prices always rise from one upgrade to the next.
 - **Shop Hints** (on by default)
@@ -190,7 +190,7 @@ These are set in your yaml before generating. The template yaml describes each o
 
 ## Contributing
 
-If you're interested in helping out, join the discussion in the [Archipelago Discord server](https://discord.com/invite/8Z65BR2). We talk about the development of this in the Death's Door thread in the `future-game-design` forum!
+If you're interested in helping out, join the discussion in the [Archipelago Discord server](https://discord.com/invite/8Z65BR2). We talk about the development of this in the Death's Door thread in the `custom-games` forum!
 
 ### Building the mod
 
