@@ -44,22 +44,37 @@ SHOP_LOCATION_IDS: dict[str, int] = {
 }
 
 # Areas with enemies to farm souls in. A shop tier is only in logic once enough of them are reachable, so the shop
-# isn't expected before you can earn souls (the Hall of Doors itself has none).
-SOUL_AREAS: tuple[str, ...] = (
-    "Lost Cemetery Central",
-    "Estate of the Urn Witch South",
-    "Ceramic Manor Main Lobby",
-    "Inner Furnace Entrance",
-    "Overgrown Ruins Outside Main Dungeon Gate",
-    "Mushroom Dungeon Lobby",
-    "Flooded Fortress Frog King Encounter",
-    "Stranded Sailor",
-    "Castle Lockstone Central",
-    "Camp of the Free Crows Village",
-    "Old Watchtowers Entrance",
+# isn't expected before you can earn souls (the Hall of Doors itself has none). Each area is a region where its
+# enemies are, plus the items needed before they can be farmed again on later visits.
+# Left out, on Olaf's playtesting: the Camp of the Free Crows (no enemies), Castle Lockstone (only arena enemies,
+# which don't respawn) and the Mushroom Dungeon lobby (no enemies of its own; with Gate Rolls it leads back out to
+# the Overgrown Ruins, which counts already). The Old Watchtowers count from the first area past the Hookshot gap:
+# the stretch by the door has no enemies.
+@dataclasses.dataclass(frozen=True)
+class SoulArea:
+    region: str
+    any_of: tuple[str, ...] = ()  # at least one of these items, if any are listed
+    all_of: tuple[str, ...] = ()  # and all of these
+
+
+SOUL_AREAS: tuple[SoulArea, ...] = (
+    SoulArea("Lost Cemetery Central"),
+    SoulArea("Estate of the Urn Witch South"),
+    SoulArea("Ceramic Manor Main Lobby"),
+    SoulArea("Inner Furnace Entrance"),
+    SoulArea("Overgrown Ruins Outside Main Dungeon Gate"),
+    SoulArea("Flooded Fortress Frog King Encounter"),
+    # Its enemies need Bomb or Hookshot to reach, and only respawn on later visits once the lamp in the Lost
+    # Cemetery has lowered the ladder between the two
+    SoulArea(
+        "Stranded Sailor",
+        any_of=(I.BOMB.value, I.HOOKSHOT.value),
+        all_of=("Lost Cemetery - Light Lamp to Open Exit to Stranded Sailor Caves",),
+    ),
+    SoulArea("Old Watchtowers Jamming Start"),
 )
-# areas needed for the 1st..5th upgrade of a stat
-SHOP_TIER_AREAS = [1, 2, 4, 6, 8]
+# areas needed for the 1st..5th upgrade of a stat (out of the 8 above)
+SHOP_TIER_AREAS = [1, 2, 3, 4, 6]
 
 
 @dataclasses.dataclass()
@@ -74,14 +89,18 @@ class CanReachSoulAreas(Rule["DeathsDoorWorld"], game="Death's Door"):
 
     class Resolved(Rule.Resolved):
         count: int
-        regions: tuple[str, ...]
+        areas: tuple[SoulArea, ...]
         skip_cache = True
 
         @override
         def _evaluate(self, state: "CollectionState") -> bool:
             reached = 0
-            for region in self.regions:
-                if state.can_reach_region(region, self.player):
+            for area in self.areas:
+                if area.any_of and not state.has_any(area.any_of, self.player):
+                    continue
+                if area.all_of and not state.has_all(area.all_of, self.player):
+                    continue
+                if state.can_reach_region(area.region, self.player):
                     reached += 1
                     if reached >= self.count:
                         return True
@@ -89,7 +108,11 @@ class CanReachSoulAreas(Rule["DeathsDoorWorld"], game="Death's Door"):
 
         @override
         def region_dependencies(self) -> dict[str, set[int]]:
-            return {region: {id(self)} for region in self.regions}
+            return {area.region: {id(self)} for area in self.areas}
+
+        @override
+        def item_dependencies(self) -> dict[str, set[int]]:
+            return {item: {id(self)} for area in self.areas for item in (*area.any_of, *area.all_of)}
 
         @override
         def __str__(self) -> str:
