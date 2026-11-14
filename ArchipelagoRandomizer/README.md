@@ -12,12 +12,12 @@ This is a work in progress Archipelago randomizer mod for Death's Door.
 1. Run the game once to generate the BepInEx plugins folder, then quit before performing the next step
 1. Install these mods into your Death's Door BepInEx plugins folder (inside the BepInEx folder) by unzipping the folder from the release. Note that each mod should be in its own folder within the plugins folder.
     - [Archipelago Randomizer](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest) (required)
-    - [Alternative Game Modes](https://github.com/dpinela/DeathsDoor.AlternativeGameModes) (required)
-    - [Item Changer](https://github.com/dpinela/DeathsDoor.ItemChanger) (required)
-    - [MagicUI](https://github.com/dpinela/DeathsDoor.MagicUI) (required)
-    - [AddUIToOptionsMenu](https://github.com/roseasromeo/DeathsDoor.AddUIToOptionsMenu) (required)
-    - [RecentItemsDisplay](https://github.com/dpinela/DeathsDoor.RecentItemsDisplay) (recommended, but not required)
-    - [ReturnToSpawn](https://github.com/roseasromeo/DeathsDoorReturnToSpawn) (recommended, but not required)
+    - [Alternative Game Modes](https://github.com/dpinela/DeathsDoor.AlternativeGameModes/releases/latest) (required)
+    - [Item Changer](https://github.com/dpinela/DeathsDoor.ItemChanger/releases/latest) (required)
+    - [MagicUI](https://github.com/dpinela/DeathsDoor.MagicUI/releases/latest) (required)
+    - [AddUIToOptionsMenu](https://github.com/roseasromeo/DeathsDoor.AddUIToOptionsMenu/releases/latest) (required)
+    - [RecentItemsDisplay](https://github.com/dpinela/DeathsDoor.RecentItemsDisplay/releases/latest) (recommended, but not required)
+    - [ReturnToSpawn](https://github.com/roseasromeo/DeathsDoorReturnToSpawn/releases/latest) (recommended, but not required)
 1. Run the game. You should see at least two additional options (`Deathlink` and `Fast Items`) in your options menu, which will confirm that the mods have loaded correctly.
 
 ## Playing

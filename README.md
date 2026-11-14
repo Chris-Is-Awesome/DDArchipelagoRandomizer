@@ -36,12 +36,12 @@ Use the mod and the apworld from the same [release](https://github.com/Chris-Is-
 1. Run the game once to create the `BepInEx/plugins` folder, then quit.
 1. Unzip each of these mods into the `BepInEx/plugins` folder. Each mod should be in its own folder inside `plugins`.
     - [Archipelago Randomizer](https://github.com/Chris-Is-Awesome/DDArchipelagoRandomizer/releases/latest) (required, `ArchipelagoRandomizer-<version>.zip` from the release)
-    - [Alternative Game Modes](https://github.com/dpinela/DeathsDoor.AlternativeGameModes) (required)
-    - [Item Changer](https://github.com/dpinela/DeathsDoor.ItemChanger) (required)
-    - [MagicUI](https://github.com/dpinela/DeathsDoor.MagicUI) (required)
-    - [AddUIToOptionsMenu](https://github.com/roseasromeo/DeathsDoor.AddUIToOptionsMenu) (required)
-    - [RecentItemsDisplay](https://github.com/dpinela/DeathsDoor.RecentItemsDisplay) (recommended)
-    - [ReturnToSpawn](https://github.com/roseasromeo/DeathsDoorReturnToSpawn) (recommended)
+    - [Alternative Game Modes](https://github.com/dpinela/DeathsDoor.AlternativeGameModes/releases/latest) (required)
+    - [Item Changer](https://github.com/dpinela/DeathsDoor.ItemChanger/releases/latest) (required)
+    - [MagicUI](https://github.com/dpinela/DeathsDoor.MagicUI/releases/latest) (required)
+    - [AddUIToOptionsMenu](https://github.com/roseasromeo/DeathsDoor.AddUIToOptionsMenu/releases/latest) (required)
+    - [RecentItemsDisplay](https://github.com/dpinela/DeathsDoor.RecentItemsDisplay/releases/latest) (recommended)
+    - [ReturnToSpawn](https://github.com/roseasromeo/DeathsDoorReturnToSpawn/releases/latest) (recommended)
 1. Run the game. You should see new options such as `Deathlink` and `Fast Items` in the Options menu, which confirms the mods have loaded.
 
 ### 2. Install Archipelago and the apworld
