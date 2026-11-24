@@ -20,6 +20,10 @@
         "itemChangerName": "Arrow Upgrade"
     },
     {
+        "apItemId": 231,
+        "itemChangerName": "Reaper's Bow"
+    },
+    {
         "apItemId": 300,
         "itemChangerName": "Reaper's Sword"
     },
@@ -542,6 +546,10 @@
     {
         "apItemId": 2003,
         "itemChangerName": "Knockback Trap"
+    },
+    {
+        "apItemId": 2004,
+        "itemChangerName": "Frog King Title Trap"
     },
     {
         "apItemId": 3000,

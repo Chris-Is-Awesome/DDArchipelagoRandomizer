@@ -12,11 +12,13 @@ from Options import (
     Toggle,
     DefaultOnToggle,
     Range,
+    NamedRange,
     OptionSet,
     PlandoConnections
 )
 
 from .entrances.scene_transitions import scene_transition_names
+from .bow_option import StartWithBow
 
 class Goal(Choice):
     """Choose the goal for this run.
@@ -24,6 +26,13 @@ class Goal(Choice):
         - True Ending: Receive all 7 Ancient Tablets of Knowledge and go to the door in the Camp of the Free Crows
         - Green Tablet: Open the door in Family Tomb by planting enough life seeds (determined by plant_pot_number). Removes the Green Tablet location. The amount of extra Life Seeds in the pool is controlled by extra_life_seeds.
         - Any: any of the above goals are valid. Note: on minimal accessibility, not all goals may be possible. Both the Rusty Belltower Key and the Green Tablet locations are removed from randomization.
+        - All: all three of the above are needed: defeat the Lord of Doors, get the True Ending and open the Green Tablet door. Both the Rusty Belltower Key and the Green Tablet locations are removed from randomization.
+        - Holy Bird: visit all 16 Magic and Vitality Shard Shrines in your own world.
+        - Lorekeeper: pick up all 24 Shiny Things (lore items) in your own world.
+        - Truthseeker: get all 7 Ancient Tablets of Knowledge in your own world (the six tablet locations and the three owls of the Pink Tablet).
+        - Custom: pick the goals in Custom Goals, and whether you need all of them or any one of them in Custom Goal Requirement. For example Lord of Doors + Green Tablet.
+        For Holy Bird, Lorekeeper and Truthseeker it's the locations in your own game that count, not receiving those items; their pool is always randomized.
+        Any and All only cover the three endings (Lord of Doors, True Ending, Green Tablet).
     """
 
     internal_name = "goal"
@@ -31,7 +40,44 @@ class Goal(Choice):
     option_lord_of_doors = 0
     option_true_ending = 1
     option_green_tablet = 2
+    option_holy_bird = 3
+    option_lorekeeper = 4
+    option_truthseeker = 5
     option_any = 10
+    option_all = 11
+    option_custom = 12
+
+
+ENDING_LORD_OF_DOORS = "Lord of Doors"
+ENDING_TRUE_ENDING = "True Ending"
+ENDING_GREEN_TABLET = "Green Tablet"
+GOAL_HOLY_BIRD = "Holy Bird"
+GOAL_LOREKEEPER = "Lorekeeper"
+GOAL_TRUTHSEEKER = "Truthseeker"
+
+
+class CustomGoals(OptionSet):
+    """With Goal set to Custom: the goals that count (Lord of Doors, True Ending, Green Tablet, Holy Bird,
+    Lorekeeper, Truthseeker; see Goal for what each needs). Each works as with its own Goal option."""
+
+    internal_name = "custom_goals"
+    display_name = "Custom Goals"
+    valid_keys = [ENDING_LORD_OF_DOORS, ENDING_TRUE_ENDING, ENDING_GREEN_TABLET, GOAL_HOLY_BIRD, GOAL_LOREKEEPER,
+                  GOAL_TRUTHSEEKER]
+    default = frozenset({ENDING_LORD_OF_DOORS, ENDING_GREEN_TABLET})
+
+
+class CustomGoalRequirement(NamedRange):
+    """With Goal set to Custom: how many of the Custom Goals you need to complete.
+    "all" (0) needs every chosen goal, "any" (1) needs one of them, and a number from 2 to 6 needs that many of them
+    (for example 2 of Lord of Doors, True Ending and Holy Bird). A number higher than the goals chosen means all."""
+
+    internal_name = "custom_goal_requirement"
+    display_name = "Custom Goal Requirement"
+    range_start = 1
+    range_end = 6
+    special_range_names = {"all": 0, "any": 1}
+    default = 0
 
 class StartDayOrNight(Choice):
     """Choose whether to start during the day or night. You must access the Rusty Belltower Bell to toggle the time of day."""
@@ -193,7 +239,6 @@ class RollBuffers(Toggle):
     display_name = "Roll Buffers"
 
 
-# Trap Chance and Trap Type Weights from Ixrec's Outer Wilds implementation
 class TrapChance(Range):
     """The probability for each filler item (including unique filler) to be replaced with a trap item.
     The exact number of trap items will still be somewhat random, so you can't know
@@ -215,6 +260,7 @@ class TrapTypeWeights(OptionDict):
         "Player Invisibility Trap": And(int, lambda n: n >= 0),
         "Enemy Invisibility Trap": And(int, lambda n: n >= 0),
         "Knockback Trap": And(int, lambda n: n >= 0),
+        "Frog King Title Trap": And(int, lambda n: n >= 0),
     })
     display_name = "Trap Type Weights"
     default = {
@@ -222,6 +268,7 @@ class TrapTypeWeights(OptionDict):
         "Player Invisibility Trap": 2,
         "Enemy Invisibility Trap": 0,
         "Knockback Trap": 2,
+        "Frog King Title Trap": 1,
     }
 
 class UnrandomizedPools(OptionSet):
@@ -290,7 +337,7 @@ class ShopUpgrades(Toggle):
 
 
 class ShopPrices(Choice):
-    """How much each shop upgrade costs when Shop Upgrades is on.
+    """How much each shop upgrade costs. With Shop Upgrades off, this changes the prices of the normal shop.
     - Vanilla: 400, 600, 800, 1000, 1500 souls for the 1st to 5th purchase of each stat.
     - Shuffled: the 20 vanilla prices are shuffled between the stats (each stat still gets cheaper upgrades first).
     - Random Range: every upgrade costs a random amount between Shop Price Minimum and Shop Price Maximum, sorted so each stat gets more expensive."""
@@ -333,13 +380,54 @@ class ShopPriceMaximum(Range):
 
 
 class ExtraStatUpgrades(Range):
-    """Add this many extra Progressive Strength/Dexterity/Haste/Magic items (random stats) on top of the normal ones,
-    replacing Soul Orb filler. Stats can go past the vanilla maximum of 5 this way. Works with or without Shop Upgrades."""
+    """Add this many extra Progressive Strength/Dexterity/Haste/Magic items on top of the normal ones, each for a
+    random stat, replacing Soul Orb filler. Stats can go past the vanilla maximum of 5 this way. Works with or without
+    Shop Upgrades. Use the per-stat options below to choose the stats yourself; both can be combined."""
 
     internal_name = "extra_stat_upgrades"
-    display_name = "Extra Stat Upgrades"
+    display_name = "Extra Random Stat Upgrades"
     range_start = 0
     range_end = 20
+    default = 0
+
+
+class ExtraStrengthUpgrades(Range):
+    """Add this many extra Progressive Strength items, replacing Soul Orb filler."""
+
+    internal_name = "extra_strength_upgrades"
+    display_name = "Extra Strength Upgrades"
+    range_start = 0
+    range_end = 10
+    default = 0
+
+
+class ExtraDexterityUpgrades(Range):
+    """Add this many extra Progressive Dexterity items, replacing Soul Orb filler."""
+
+    internal_name = "extra_dexterity_upgrades"
+    display_name = "Extra Dexterity Upgrades"
+    range_start = 0
+    range_end = 10
+    default = 0
+
+
+class ExtraHasteUpgrades(Range):
+    """Add this many extra Progressive Haste items, replacing Soul Orb filler."""
+
+    internal_name = "extra_haste_upgrades"
+    display_name = "Extra Haste Upgrades"
+    range_start = 0
+    range_end = 10
+    default = 0
+
+
+class ExtraMagicUpgrades(Range):
+    """Add this many extra Progressive Magic items, replacing Soul Orb filler."""
+
+    internal_name = "extra_magic_upgrades"
+    display_name = "Extra Magic Upgrades"
+    range_start = 0
+    range_end = 10
     default = 0
 
 class PlantingChecks(Range):
@@ -381,6 +469,28 @@ class DeathsDoorPlandoConnections(PlandoConnections):
 
     duplicate_exits = False
 
+class DeathLinkAmnesty(Range):
+    """With DeathLink on (in the game's options menu), how many of your own deaths are forgiven before one is sent
+    to the other players. 0 sends every death; 2 sends every 3rd death."""
+
+    internal_name = "death_link_amnesty"
+    display_name = "DeathLink Amnesty"
+    range_start = 0
+    range_end = 20
+    default = 0
+
+
+class DeathWish(Range):
+    """With DeathLink on (in the game's options menu), how many DeathLinks from other players it takes to kill you.
+    1 means every DeathLink kills you; 3 means every 3rd one does."""
+
+    internal_name = "death_wish"
+    display_name = "Death Wish"
+    range_start = 1
+    range_end = 20
+    default = 1
+
+
 @dataclass
 class DeathsDoorOptions(PerGameCommonOptions):
     start_inventory_from_pool: StartInventoryPool
@@ -401,8 +511,11 @@ class DeathsDoorOptions(PerGameCommonOptions):
     offscreen_targeting_tricks: OffscreenTargetingTricks
     geometry_exploits: GeometryExploits
     roll_buffers: RollBuffers
+    start_with_bow: StartWithBow
     unrandomized_pools: UnrandomizedPools
     goal: Goal
+    custom_goals: CustomGoals
+    custom_goal_requirement: CustomGoalRequirement
     entrance_randomization : EntranceRandomization
     plando_connections: DeathsDoorPlandoConnections
     shop_upgrades: ShopUpgrades
@@ -411,6 +524,12 @@ class DeathsDoorOptions(PerGameCommonOptions):
     shop_price_minimum: ShopPriceMinimum
     shop_price_maximum: ShopPriceMaximum
     extra_stat_upgrades: ExtraStatUpgrades
+    extra_strength_upgrades: ExtraStrengthUpgrades
+    extra_dexterity_upgrades: ExtraDexterityUpgrades
+    extra_haste_upgrades: ExtraHasteUpgrades
+    extra_magic_upgrades: ExtraMagicUpgrades
+    death_link_amnesty: DeathLinkAmnesty
+    death_wish: DeathWish
     planting_checks: PlantingChecks
     seeds_per_planting_check: SeedsPerPlantingCheck
 
@@ -418,11 +537,13 @@ class DeathsDoorOptions(PerGameCommonOptions):
 deathsdoor_options_presets: dict[str, dict[str, Any]] = {}
 
 deathsdoor_option_groups: list[OptionGroup] = [
-    OptionGroup("Logic Options", [Goal, EntranceRandomization, StartDayOrNight, PlantedPotsRequired, EarlyImportantItem, GateRollsGlitch,
+    OptionGroup("Logic Options", [Goal, CustomGoals, CustomGoalRequirement, EntranceRandomization, StartDayOrNight, PlantedPotsRequired, EarlyImportantItem, GateRollsGlitch,
                                   BombBellGlitch, OffscreenTargetingTricks, GeometryExploits, RollBuffers]),
     OptionGroup("Itempool Modification Options", [ExtraLifeSeeds, ExtraMagicShards, ExtraVitalityShards,
                                                   RemoveSpellUpgrades, UnrandomizedPools, TrapChance, TrapTypeWeights]),
     OptionGroup("Shop and Planting", [ShopUpgrades, ShopPrices, ShopHints, ShopPriceMinimum, ShopPriceMaximum, ExtraStatUpgrades,
+                                      ExtraStrengthUpgrades, ExtraDexterityUpgrades, ExtraHasteUpgrades, ExtraMagicUpgrades,
                                       PlantingChecks, SeedsPerPlantingCheck]),
-    OptionGroup("Customization Options", [StartWeapon, SoulMultiplier, StartingSouls])
+    OptionGroup("Customization Options", [StartWeapon, StartWithBow, SoulMultiplier, StartingSouls]),
+    OptionGroup("DeathLink", [DeathLinkAmnesty, DeathWish])
 ]

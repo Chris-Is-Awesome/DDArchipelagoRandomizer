@@ -3,7 +3,7 @@ from logging import warning
 
 from Options import Option, PlandoConnection
 
-from rule_builder.rules import Rule, False_
+from rule_builder.rules import Rule, False_, True_, HasFromList
 from rule_builder.cached_world import CachedRuleBuilderWorld
 from .options import (
     DeathsDoorOptions,
@@ -32,11 +32,28 @@ from .locations import (
 )
 from .events import (
     DeathsDoorEventName as E,
+    DeathsDoorEventLocationName as EL,
     event_location_table,
 )
 from .event_rules import set_event_rules, pot_specific_rules
 from .regions import DeathsDoorRegionName as R
 from .entrances.entrances import deathsdoor_internal_entrances
+from .options import (
+    ENDING_LORD_OF_DOORS,
+    ENDING_TRUE_ENDING,
+    ENDING_GREEN_TABLET,
+    GOAL_HOLY_BIRD,
+    GOAL_LOREKEEPER,
+    GOAL_TRUTHSEEKER,
+)
+from .locations import LocationGroup as LG
+
+# Collection goals: every location of these groups checked in your own world
+COLLECTION_GOALS: dict[str, tuple[LG, E]] = {
+    GOAL_HOLY_BIRD: (LG.SHRINE, E.HOLY_BIRD),
+    GOAL_LOREKEEPER: (LG.SHINY_THING, E.LOREKEEPER),
+    GOAL_TRUTHSEEKER: (LG.TABLET, E.TRUTHSEEKER),
+}
 from .entrances.randomize_transitions import (
     connect_entrances_function,
     create_vanilla_entrances,
@@ -63,6 +80,7 @@ from .jefferson import (
     create_jefferson_internal_connections,
 )
 from .rules import Has, set_location_rules, deaths_door_location_rules
+from .rule_builder_overrides import HasAll, HasAny, CanReachLocation
 from worlds.AutoWorld import World, WebWorld
 from BaseClasses import MultiWorld, Region, Location, Item, ItemClassification, Tutorial, CollectionState
 
@@ -76,7 +94,7 @@ from .json_generator import (
     generate_scene_transition_json,
 )
 
-deathsdoor_version = "0.4.3"
+deathsdoor_version = "0.5.0"
 
 # Below this many randomized locations, an unrandomized Soul Orb pool is randomized anyway (see generate_early)
 MIN_LOCATIONS_WITHOUT_SOUL_ORBS = 70
@@ -186,6 +204,9 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
             I.BOMB,
             I.FIRE,
         ]
+        if not self.options.start_with_bow:
+            # Without the starting bow it opens a lot, so it can be the early item too
+            early_important_item_candidates.append(I.REAPERS_BOW)
         important_item = self.random.choice(early_important_item_candidates)
         if self.options.early_important_item == EarlyImportantItem.option_early:
             self.multiworld.early_items[self.player][important_item.value] = 1
@@ -270,32 +291,111 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
                         PlandoConnection(entrance, exit, "entrance")
                     )
 
+        self.setup_goal()
         self.setup_shop_and_planting()
+
+    def setup_goal(self) -> None:
+        """
+        The endings that count for the goal, and whether all of them are needed or any one. Every Goal option
+        (including Custom with Custom Goals) comes down to this.
+        """
+        everything = {ENDING_LORD_OF_DOORS, ENDING_TRUE_ENDING, ENDING_GREEN_TABLET}
+        goal = self.options.goal.value
+        required = 0  # 0: all of them
+        if goal == Goal.option_lord_of_doors:
+            self.goal_endings = {ENDING_LORD_OF_DOORS}
+        elif goal == Goal.option_true_ending:
+            self.goal_endings = {ENDING_TRUE_ENDING}
+        elif goal == Goal.option_green_tablet:
+            self.goal_endings = {ENDING_GREEN_TABLET}
+        elif goal == Goal.option_holy_bird:
+            self.goal_endings = {GOAL_HOLY_BIRD}
+        elif goal == Goal.option_lorekeeper:
+            self.goal_endings = {GOAL_LOREKEEPER}
+        elif goal == Goal.option_truthseeker:
+            self.goal_endings = {GOAL_TRUTHSEEKER}
+        elif goal == Goal.option_any:
+            self.goal_endings = set(everything)
+            required = 1
+        elif goal == Goal.option_all:
+            self.goal_endings = set(everything)
+        else:  # custom
+            self.goal_endings = set(self.options.custom_goals.value) & (everything | set(COLLECTION_GOALS))
+            required = self.options.custom_goal_requirement.value
+            if not self.goal_endings:
+                warning(
+                    f"{self.player_name}: Goal is Custom but no Custom Goals are chosen, so the goal is Lord of Doors."
+                )
+                self.goal_endings = {ENDING_LORD_OF_DOORS}
+        # How many of the goal's endings / collections are needed
+        self.goal_required_count = len(self.goal_endings) if required <= 0 else min(required, len(self.goal_endings))
+        self.goal_requires_all = self.goal_required_count == len(self.goal_endings)
+
+        # The collection goals count the locations in your own world, so their pool can't stay unrandomized
+        for goal_name, (group, _) in COLLECTION_GOALS.items():
+            if goal_name in self.goal_endings and group.value in self.options.unrandomized_pools.value:
+                warning(
+                    f"{self.player_name}: The {goal_name} goal needs the {group.value} locations, so the "
+                    f"{group.value} pool will be randomized."
+                )
+                self.options.unrandomized_pools.value = self.options.unrandomized_pools.value - {group.value}
+
+    @staticmethod
+    def collection_goal_locations(group: LG) -> list[L]:
+        return [data.name for data in location_table if group in data.location_groups]
+
+    def collection_goal_slot_data(self) -> dict[str, dict[str, list]]:
+        """
+        For the mod: per collection goal, the location IDs to check and, for locations that became goal events
+        (Rusty Belltower Key, Green Tablet), the ending that stands for them
+        """
+        result: dict[str, dict[str, list]] = {}
+        for goal_name, (group, _) in COLLECTION_GOALS.items():
+            if goal_name not in self.goal_endings:
+                continue
+            ids: list[int] = []
+            endings: list[str] = []
+            for location_name in self.collection_goal_locations(group):
+                location = self.get_location(location_name.value)
+                if location.address is not None:
+                    ids.append(location.address)
+                elif location_name == L.RUSTY_BELLTOWER_KEY:
+                    endings.append(ENDING_LORD_OF_DOORS)
+                elif location_name == L.GREEN_ANCIENT_TABLET_OF_KNOWLEDGE:
+                    endings.append(ENDING_GREEN_TABLET)
+            result[goal_name] = {"locations": sorted(ids), "endings": endings}
+        return result
+
+    def goal_has(self, ending: str) -> bool:
+        # Item link groups create items without running generate_early
+        if "goal_endings" not in self.__dict__:
+            self.setup_goal()
+        return ending in self.goal_endings
 
     def setup_shop_and_planting(self) -> None:
         re_gen_passthrough = getattr(self.multiworld, "re_gen_passthrough", {})
         slot_data: dict[str, Any] = re_gen_passthrough.get(self.game, {}) if re_gen_passthrough else {}
 
         # Shop prices: stat id -> price of the 1st..5th purchase
+        # Also used for the normal shop when Shop Upgrades is off
         self.shop_price_table: dict[str, list[int]] = {}
-        if self.options.shop_upgrades:
-            if "shop_price_table" in slot_data:
-                self.shop_price_table = {k: list(v) for k, v in slot_data["shop_price_table"].items()}
-            elif self.options.shop_prices == ShopPrices.option_shuffled:
-                prices = VANILLA_UPGRADE_COSTS * len(STATS)
-                self.random.shuffle(prices)
-                for i, (_, stat_id) in enumerate(STATS):
-                    # each stat keeps rising prices, like the vanilla shop
-                    self.shop_price_table[stat_id] = sorted(prices[i * UPGRADES_PER_STAT:(i + 1) * UPGRADES_PER_STAT])
-            elif self.options.shop_prices == ShopPrices.option_random_range:
-                low, high = sorted((self.options.shop_price_minimum.value, self.options.shop_price_maximum.value))
-                for _, stat_id in STATS:
-                    self.shop_price_table[stat_id] = sorted(
-                        self.random.randint(low, high) for _ in range(UPGRADES_PER_STAT)
-                    )
-            else:
-                for _, stat_id in STATS:
-                    self.shop_price_table[stat_id] = list(VANILLA_UPGRADE_COSTS)
+        if "shop_price_table" in slot_data:
+            self.shop_price_table = {k: list(v) for k, v in slot_data["shop_price_table"].items()}
+        elif self.options.shop_prices == ShopPrices.option_shuffled:
+            prices = VANILLA_UPGRADE_COSTS * len(STATS)
+            self.random.shuffle(prices)
+            for i, (_, stat_id) in enumerate(STATS):
+                # each stat keeps rising prices, like the vanilla shop
+                self.shop_price_table[stat_id] = sorted(prices[i * UPGRADES_PER_STAT:(i + 1) * UPGRADES_PER_STAT])
+        elif self.options.shop_prices == ShopPrices.option_random_range:
+            low, high = sorted((self.options.shop_price_minimum.value, self.options.shop_price_maximum.value))
+            for _, stat_id in STATS:
+                self.shop_price_table[stat_id] = sorted(
+                    self.random.randint(low, high) for _ in range(UPGRADES_PER_STAT)
+                )
+        else:
+            for _, stat_id in STATS:
+                self.shop_price_table[stat_id] = list(VANILLA_UPGRADE_COSTS)
 
         # Planting checks: never ask for more seeds than exist in the pool or pots in the world
         per_check = self.options.seeds_per_planting_check.value
@@ -331,8 +431,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
             # Goal locations are replaced by the goal event regardless of which pools are randomized; otherwise an
             # unrandomized Shiny Thing / Tablet pool would put the vanilla item there and the goal could never be met.
             if (
-                self.options.goal == Goal.option_lord_of_doors
-                or self.options.goal == Goal.option_any
+                self.goal_has(ENDING_LORD_OF_DOORS)
             ) and location_data.name == L.RUSTY_BELLTOWER_KEY:
                 location = DeathsDoorLocation(self.player, location_data.name.value, None, region)
                 region.locations.append(location)
@@ -340,8 +439,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
                 self.goal_event_locations[location_data.name] = region
                 continue
             if (
-                self.options.goal == Goal.option_green_tablet
-                or self.options.goal == Goal.option_any
+                self.goal_has(ENDING_GREEN_TABLET)
             ) and location_data.name == L.GREEN_ANCIENT_TABLET_OF_KNOWLEDGE:
                 location = DeathsDoorLocation(self.player, location_data.name.value, None, region)
                 region.locations.append(location)
@@ -361,8 +459,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
             ):
                 # Skip locations that are irrelevant on specific goals
                 if (
-                    self.options.goal == Goal.option_lord_of_doors
-                    or self.options.goal == Goal.option_any
+                    self.goal_has(ENDING_LORD_OF_DOORS)
                 ) and location_data.name == L.RUSTY_BELLTOWER_KEY:
                     location = DeathsDoorLocation(
                         self.player,
@@ -373,8 +470,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
                     region.locations.append(location)
                     location.place_locked_item(self.create_event(E.LORD_OF_DOORS.value))
                 elif (
-                    self.options.goal == Goal.option_green_tablet
-                    or self.options.goal == Goal.option_any
+                    self.goal_has(ENDING_GREEN_TABLET)
                 ) and location_data.name == L.GREEN_ANCIENT_TABLET_OF_KNOWLEDGE:
                     location = DeathsDoorLocation(
                         self.player,
@@ -433,6 +529,14 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
             event_location.place_locked_item(
                 self.create_event(event_location_data.event_name.value)
             )
+
+        # Collection goals: an event in the Hall of Doors that needs every location of the set (rules in set_rules)
+        for goal_name, (_, event) in COLLECTION_GOALS.items():
+            if goal_name in self.goal_endings:
+                region = self.get_region(self.origin_region_name.value)
+                goal_location = DeathsDoorLocation(self.player, f"Goal: {goal_name}", None, region)
+                region.locations.append(goal_location)
+                goal_location.place_locked_item(self.create_event(event.value))
 
         if self.is_tracker():
             # Map pins for the planting pots, only in Universal Tracker (see pots.py)
@@ -502,10 +606,7 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
             return DeathsDoorItem(
                 name, ItemClassification.useful, self.item_name_to_id[name], self.player
             )
-        elif (
-            self.options.goal == Goal.option_lord_of_doors
-            or self.options.goal == Goal.option_green_tablet
-        ) and IG.TABLET in item_data.item_groups:
+        elif not self.goal_has(ENDING_TRUE_ENDING) and IG.TABLET in item_data.item_groups:
             return DeathsDoorItem(
                 name, ItemClassification.filler, self.item_name_to_id[name], self.player
             )
@@ -553,6 +654,9 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
             items_to_create[I.BOMB] = 1
             items_to_create[I.HOOKSHOT] = 1
             items_to_create[I.BOW] = 0
+
+        if not self.options.start_with_bow:
+            items_to_create[I.REAPERS_BOW.value] = 1
 
         if self.options.start_weapon != StartWeapon.option_sword:
             # If Weapon unrandomized, start_weapon forced to be option_sword
@@ -618,6 +722,14 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
         for _ in range(self.options.extra_stat_upgrades.value):
             stat, _ = self.random.choice(STATS)
             deathsdoor_items.append(self.create_item(progressive_stat_item(stat)))
+        for stat, extra in (
+            ("Strength", self.options.extra_strength_upgrades.value),
+            ("Dexterity", self.options.extra_dexterity_upgrades.value),
+            ("Haste", self.options.extra_haste_upgrades.value),
+            ("Magic", self.options.extra_magic_upgrades.value),
+        ):
+            for _ in range(extra):
+                deathsdoor_items.append(self.create_item(progressive_stat_item(stat)))
 
         if "Door" in self.options.unrandomized_pools.value:
             # With vanilla doors, Castle Lockstone and the Camp of the Free Crows are only reached through the Camp
@@ -666,6 +778,9 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
     def set_rules(self) -> None:
         set_location_rules(self)
         set_event_rules(self)
+        if not self.goal_has(ENDING_TRUE_ENDING):
+            # The True Ending isn't part of the goal: its event is free, so nothing waits on the tablets
+            self.set_rule(self.get_location(EL.TRUE_ENDING.value), True_())
         if self.options.shop_upgrades:
             for stat, _ in STATS:
                 for level in range(1, UPGRADES_PER_STAT + 1):
@@ -692,22 +807,21 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
                 Has(I.LIFE_SEED, count) & Has(E.PLANTED_SEED, count),
             )
 
-        completion_rule: Rule = False_()
-        if (
-            self.options.goal == Goal.option_lord_of_doors
-            or self.options.goal == Goal.option_any
-        ):
-            completion_rule = completion_rule | Has(E.LORD_OF_DOORS)
-        if (
-            self.options.goal == Goal.option_true_ending
-            or self.options.goal == Goal.option_any
-        ):
-            completion_rule = completion_rule | Has(E.TRUE_ENDING)
-        if (
-            self.options.goal == Goal.option_green_tablet
-            or self.options.goal == Goal.option_any
-        ):
-            completion_rule = completion_rule | Has(E.LIFE_SEED_DOOR)
+        for goal_name, (group, _) in COLLECTION_GOALS.items():
+            if goal_name in self.goal_endings:
+                rule: Rule = True_()
+                for location_name in self.collection_goal_locations(group):
+                    rule = rule & CanReachLocation(location_name)
+                self.set_rule(self.get_location(f"Goal: {goal_name}"), rule)
+
+        ending_events = {
+            ENDING_LORD_OF_DOORS: E.LORD_OF_DOORS,
+            ENDING_TRUE_ENDING: E.TRUE_ENDING,
+            ENDING_GREEN_TABLET: E.LIFE_SEED_DOOR,
+            **{goal_name: event for goal_name, (_, event) in COLLECTION_GOALS.items()},
+        }
+        needed = [ending_events[ending] for ending in sorted(self.goal_endings)]
+        completion_rule: Rule = HasFromList(*(event.value for event in needed), count=self.goal_required_count)
 
         self.set_completion_rule(completion_rule)
         self.register_rule_builder_dependencies()
@@ -766,11 +880,14 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
             "starting_souls",
             "unrandomized_pools",
             "goal",
+            "custom_goals",
+            "custom_goal_requirement",
             "gate_rolls_glitch",
             "bomb_bell_glitch",
             "offscreen_targeting_tricks",
             "geometry_exploits",
             "roll_buffers",
+            "start_with_bow",
             "entrance_randomization",
             toggles_as_bools=True,
         )
@@ -778,9 +895,21 @@ class DeathsDoorWorld(CachedRuleBuilderWorld, World):
         slot_data["shop_upgrades"] = bool(self.options.shop_upgrades)
         slot_data["shop_price_table"] = self.shop_price_table
         slot_data["shop_hints"] = bool(self.options.shop_hints)
+        slot_data["death_link_amnesty"] = self.options.death_link_amnesty.value
+        slot_data["death_wish"] = self.options.death_wish.value
         slot_data["planting_checks"] = self.options.planting_checks.value
         slot_data["seeds_per_planting_check"] = self.options.seeds_per_planting_check.value
         slot_data["planting_thresholds"] = self.planting_thresholds
+        # The mod only preloads the Frog King's intro text when this trap can show up
+        slot_data["frog_king_title_trap"] = (
+            self.options.trap_chance.value > 0
+            and self.options.trap_type_weights.value.get("Frog King Title Trap", 0) > 0
+        )
+        # What the mod needs to know about the goal, whichever Goal option made it
+        slot_data["goal_endings"] = sorted(self.goal_endings)
+        slot_data["goal_requires_all"] = self.goal_requires_all
+        slot_data["goal_required_count"] = self.goal_required_count
+        slot_data["collection_goals"] = self.collection_goal_slot_data()
         slot_data["APWorldVersion"] = deathsdoor_version
         return slot_data
 

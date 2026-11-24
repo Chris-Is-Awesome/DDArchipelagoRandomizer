@@ -53,6 +53,7 @@ public class Plugin : BaseUnityPlugin
 			PauseTracker.Init();
 			UIManager.Instance.AddOptionsMenuItems();
 			UIManager.Instance.CheckPluginVersion();
+			WindowMode.Apply();
 
 			InitStatus = 1;
 
@@ -81,6 +82,7 @@ public class Plugin : BaseUnityPlugin
 	private void OnApplicationQuit()
 	{
 		Preloader.Instance.Dispose();
+		WindowMode.OnQuit();
 	}
 
 	public static Coroutine StartRoutine(IEnumerator routine)

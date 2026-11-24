@@ -27,6 +27,7 @@ class DeathsDoorItemName(str, Enum):
     FIRE = "Fire"
     BOMB = "Bomb"
     HOOKSHOT = "Hookshot"
+    REAPERS_BOW = "Reaper's Bow"
     BOW = "Arrow Upgrade"
     SWORD = "Reaper's Sword"
     ROGUE_DAGGERS = "Rogue Daggers"
@@ -164,7 +165,10 @@ class DeathsDoorItemName(str, Enum):
     INNER_FURNACE_DOOR = "Inner Furnace Door"
     THE_URN_WITCHS_LABORATORY_DOOR = "The Urn Witch's Laboratory Door"
     GIANT_SOUL_OF_THE_URN_WITCH = "Giant Soul of The Urn Witch"
-    GIANT_SOUL_OF_THE_FROG_KING = "Giant Soul of The Frog King"
+    # His full title (Olaf, for 0.5.0). The mod still shows the short ItemChanger name in game.
+    GIANT_SOUL_OF_THE_FROG_KING = (
+        "Giant Soul of the Frog King - Guardian of the Flooded Fortress. Lord of his domain.Ruler of all he surveys. Champion of the people. Keeper of the five oaths. First of his name. Second of his other name. He who is without middle initial or mercy. Destroyer of all those who would question his rightful rule or look at him askance. Eater of the vanquished. Devourer of the indolent. Guzzler of the non-committal. Bestower of wrathful opprobrium and fount of most wondrous beneficence. All glory to him and his mace! Holy basher of toads not frogs, but really what are toads anyway? Like worse frogs right? Uglier too. Smartest creature in all the land, really clever like that Einstein guy but more handsome and- okay hit the word count"
+    )
     GIANT_SOUL_OF_BETTY = "Giant Soul of Betty"
     CROW_MANOR_AFTER_TORCH_PUZZLE = "Ceramic Manor - After Torch Puzzle Crow"
     CROW_MANOR_IMP_LOFT = "Ceramic Manor - Imp Loft Crow"
@@ -183,6 +187,7 @@ class DeathsDoorItemName(str, Enum):
     PLAYER_INVISIBILITY_TRAP = "Player Invisibility Trap"
     ENEMY_INVISIBILITY_TRAP = "Enemy Invisibility Trap"
     KNOCKBACK_TRAP = "Knockback Trap"
+    FROG_KING_TITLE_TRAP = "Frog King Title Trap"
 
 
 class DeathsDoorItemData(NamedTuple):
@@ -233,6 +238,15 @@ item_table: list[DeathsDoorItemData] = [
         230,
         ItemClassification.useful,
         1,
+        [ItemGroup.SPELL],
+    ),
+    # Only in the pool with start_with_bow off
+    DeathsDoorItemData(
+        DeathsDoorItemName.REAPERS_BOW,
+        "Reaper's Bow",
+        231,
+        ItemClassification.progression,
+        0,
         [ItemGroup.SPELL],
     ),
     DeathsDoorItemData(
@@ -1283,6 +1297,14 @@ item_table: list[DeathsDoorItemData] = [
         0,
         [ItemGroup.TRAP],
     ),
+    DeathsDoorItemData(
+        DeathsDoorItemName.FROG_KING_TITLE_TRAP,
+        "Frog King Title Trap",
+        2004,
+        ItemClassification.trap,
+        0,
+        [ItemGroup.TRAP],
+    ),
 ]
 
 
@@ -1304,3 +1326,6 @@ for group in ItemGroup:
     # An item group may not share its name with an item ("Life Seed"), so pluralise those.
     group_name = group.value + "s" if group == ItemGroup.LIFE_SEED else group.value
     item_name_groups[group_name] = items_for_group(group)
+
+# The Frog King's Giant Soul has his full title as its name; this group makes it easy to hint
+item_name_groups["Giant Soul of the Frog King"] = {DeathsDoorItemName.GIANT_SOUL_OF_THE_FROG_KING.value}

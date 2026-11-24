@@ -25,6 +25,7 @@ public class TrapManager : MonoBehaviour
 		{"Player Invisibility Trap", TrapType.PlayerInvisibility },
 		{"Enemy Invisibility Trap", TrapType.EnemyInvisibility },
 		{"Knockback Trap", TrapType.Knockback },
+		{"Frog King Title Trap", TrapType.FrogKingTitle },
 	};
 
 	public Dictionary<string, TrapType> TrapNameToType = new()
@@ -34,6 +35,7 @@ public class TrapManager : MonoBehaviour
 		{"Player Invisibility Trap", TrapType.PlayerInvisibility },
 		{"Enemy Invisibility Trap", TrapType.EnemyInvisibility },
 		{"Knockback Trap", TrapType.Knockback },
+		{"Frog King Title Trap", TrapType.FrogKingTitle },
 		// { "Ice Trap", TrapType.Ice },
 		// {"Freeze Trap", TrapType.Ice },
 		// {"Frozen Trap", TrapType.Ice },
@@ -80,6 +82,7 @@ public class TrapManager : MonoBehaviour
 	private readonly float trapDelay = 3f;
 	private Coroutine enemyInvisCoroutine;
 	private readonly float enemyInvisTime = 15f;
+	private readonly UI.FrogKingTitle frogKingTitle = new();
 	private float enemyInvisTimer = 0f;
 
 	private void Awake()
@@ -87,6 +90,7 @@ public class TrapManager : MonoBehaviour
 		instance = this;
 		trapQueue = new ConcurrentQueue<TrapType>();
 		trapHandler = TrapHandler();
+		UI.FrogKingTitle.RegisterPreload();
 		if (Archipelago.Instance.apConfig.TrapLinkEnabled)
 		{
 			EnableTrapLink();
@@ -139,6 +143,13 @@ public class TrapManager : MonoBehaviour
 					break;
 				case TrapType.Knockback:
 					KnockbackTrap(); break;
+				case TrapType.FrogKingTitle:
+					if (!UI.FrogKingTitle.PlayGameIntro())
+					{
+						// No preloaded intro (seed from an older apworld): the plain overlay instead
+						frogKingTitle.Play();
+					}
+					break;
 			}
 			trapQueue.TryDequeue(out _);
 			// Add delay between each trap
@@ -315,5 +326,6 @@ public class TrapManager : MonoBehaviour
 		PlayerInvisibility,
 		EnemyInvisibility,
 		Knockback,
+		FrogKingTitle,
 	}
 }

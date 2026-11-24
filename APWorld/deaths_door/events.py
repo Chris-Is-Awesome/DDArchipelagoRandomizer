@@ -8,6 +8,10 @@ class DeathsDoorEventName(str, Enum):
     LORD_OF_DOORS = "Defeat the Lord of Doors"
     TRUE_ENDING = "Unlock the Door of Truth"
     LIFE_SEED_DOOR = "Unlock the Door to the Green Ancient Tablet of Knowledge"
+    # Collection goals: every location of the set checked in your own world
+    HOLY_BIRD = "Holy Bird"
+    LOREKEEPER = "Lorekeeper"
+    TRUTHSEEKER = "Truthseeker"
     LOST_CEMETERY_OPENED_GROVE_TO_CENTRAL = (
         "Lost Cemetery - Hit Switch to Access to Lost Cemetery Central from Grove of Spirits Door"
     )

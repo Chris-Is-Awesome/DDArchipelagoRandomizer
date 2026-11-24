@@ -81,6 +81,10 @@ internal class ItemRandomizer : MonoBehaviour
 			};
 			item = tempItem;
 		}
+		else if (itemName == BowManager.ItemName)
+		{
+			item = new BowManager.BowItem();
+		}
 		else if (ShopAndPlanting.StatIdForItem(itemName) is string statId)
 		{
 			item = new ShopAndPlanting.StatUpgradeItem(statId);
@@ -182,6 +186,8 @@ internal class ItemRandomizer : MonoBehaviour
 				? "AP"
 				: (itemPlacement.Item is "Bomb" or "Fire" or "Hookshot")
 				? itemPlacement.Item
+				: itemPlacement.Item == BowManager.ItemName
+				? new BowManager.BowItem().Icon
 				: ShopAndPlanting.StatIdForItem(itemPlacement.Item) is string statId
 				? ShopAndPlanting.StatIconName(statId)
 				: predefinedItem?.Icon ?? "Unknown";
@@ -211,7 +217,7 @@ internal class ItemRandomizer : MonoBehaviour
 		{
 			// Place the goal item at Green Tablet if Green Tablet is a possible goal
 			IC.Predefined.TryGetItem("Green Ancient Tablet of Knowledge", out IC.Item predefinedItem);
-			IC.Item item = new GoalModifications.GoalItem("Goal", predefinedItem?.Icon ?? "Unknown", "Green Ancient Tablet of Knowledge");
+			IC.Item item = new GoalModifications.GoalItem("Goal", predefinedItem?.Icon ?? "Unknown", "Green Ancient Tablet of Knowledge", GoalModifications.Ending.GreenTablet);
 			icSaveData.Place(item, "Green Ancient Tablet of Knowledge");
 			Logger.Log($"Placed goal item at Green Ancient Tablet of Knowledge");
 		}
@@ -220,7 +226,7 @@ internal class ItemRandomizer : MonoBehaviour
 		{
 			// Place a goal item at Rusty Belltower Key if Lord of Doors is a possible goal so that the belltower is accessible
 			IC.Predefined.TryGetItem("Rusty Belltower Key", out IC.Item predefinedItem);
-			IC.Item item = new GoalModifications.GoalItem("Goal", predefinedItem?.Icon ?? "Unknown", "Rusty Belltower Key");
+			IC.Item item = new GoalModifications.GoalItem("Goal", predefinedItem?.Icon ?? "Unknown", "Rusty Belltower Key", GoalModifications.Ending.LordOfDoors);
 			icSaveData.Place(item, "Rusty Belltower Key");
 			Logger.Log($"Placed goal item at Rusty Belltower Key");
 		}
@@ -383,7 +389,14 @@ internal class ItemRandomizer : MonoBehaviour
 		[HarmonyAfter("deathsdoor.itemchanger")]
 		private static void PostLoadFilePatch()
 		{
-			if (!Archipelago.Instance.IsConnected() || !Instance.newGame)
+			if (!Archipelago.Instance.IsConnected())
+			{
+				return;
+			}
+			RemoveUnearnedSword();
+			GoalModifications.HoldTruthKeys();
+			GoalModifications.CheckAllEndings(false);
+			if (!Instance.newGame)
 			{
 				return;
 			}
@@ -395,6 +408,35 @@ internal class ItemRandomizer : MonoBehaviour
 				GameSave.currentSave.Save();
 			}
 			Instance.newGame = false;
+		}
+
+		/// <summary>
+		/// A new save gets the Reaper's Sword before the starting weapon is chosen, so with another starting weapon
+		/// it stayed in the inventory. Take it away (also from saves made before this fix) unless it was received.
+		/// </summary>
+		private static void RemoveUnearnedSword()
+		{
+			string startingWeapon = IC.SaveData.Open()?.StartingWeapon ?? "sword";
+			GameSave save = GameSave.currentSave;
+			if (startingWeapon == "sword" || save == null || save.GetCountKey("sword") <= 0)
+			{
+				return;
+			}
+			if (Archipelago.Instance.Session.Items.AllItemsReceived.Any(item => item.ItemName == "Reaper's Sword"))
+			{
+				return;
+			}
+			save.SetCountKey("sword", 0);
+			if (save.weaponId == "sword")
+			{
+				save.weaponId = startingWeapon;
+			}
+			if (save.GetCountKey(startingWeapon) <= 0)
+			{
+				save.SetCountKey(startingWeapon, 1);
+			}
+			save.Save();
+			Logger.Log($"Removed the Reaper's Sword: the starting weapon is {startingWeapon} and the sword hasn't been received");
 		}
 
 		/// <summary>

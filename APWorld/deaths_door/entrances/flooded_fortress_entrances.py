@@ -1,3 +1,4 @@
+from ..rule_builder_overrides import HAS_BOW
 from .entrance_class import DeathsDoorEntrance
 from ..rule_builder_overrides import Has, HasAny, HasAll
 from rule_builder.rules import True_, OptionFilter
@@ -21,17 +22,17 @@ flooded_fortress_entrances: list[DeathsDoorEntrance] = [
     DeathsDoorEntrance(
         R.FLOODED_FORTRESS_ENTRANCE,
         R.FLOODED_FORTRESS_WATCHTOWER_LOWER,
-        Has(I.LEVER_FORTRESS_WATCHTOWER_LOWER),
+        Has(I.LEVER_FORTRESS_WATCHTOWER_LOWER) & HAS_BOW,  # the watchtower's switches need arrows (Olaf)
     ),
     DeathsDoorEntrance(
         R.FLOODED_FORTRESS_ENTRANCE,
         R.FLOODED_FORTRESS_FROG_KING_STATUE,
-        None,
+        HAS_BOW,  # the switches in the entrance need arrows; from the Flooded Fortress door it's open (Olaf)
     ),
     DeathsDoorEntrance(
         R.FLOODED_FORTRESS_FROG_KING_STATUE,
         R.FLOODED_FORTRESS_ENTRANCE,
-        True_(options=[OptionFilter(OffscreenTargetingTricks, 1)]) | Has(E.OOL) | Has(E.FLOODED_FORTRESS_OPENED_FORTRESS_ENTRANCE),  # Event is for Jefferson back-tracking
+        (True_(options=[OptionFilter(OffscreenTargetingTricks, 1)]) & HAS_BOW) | Has(E.OOL) | Has(E.FLOODED_FORTRESS_OPENED_FORTRESS_ENTRANCE),  # Event is for Jefferson back-tracking
     ),
     DeathsDoorEntrance(
         R.FLOODED_FORTRESS_FROG_KING_ENCOUNTER,

@@ -1679,7 +1679,9 @@ location_table: list[DeathsDoorLocationData] = [
         DeathsDoorLocationName.LEVER_CEMETERY_SHORTCUT_TO_EAST_TREE,
         "Lever-Cemetery Shortcut to East Tree",
         903,
-        R.LOST_CEMETERY_EAST_TREE_BRIDGE,  ##TODO: CHECK IF ROUTE FROM RIGHT ARENA OR EXIT TO RUINS IS DISTINCT
+        # The lever is at the foot of the ladder up to the Right Arena, on the side of the exit to Overgrown Ruins
+        # (as in the standalone randomizer's logic), not on the East Tree bridge
+        R.LOST_CEMETERY_EXIT_TO_OVERGROWN_RUINS,
         [LocationGroup.LEVER],
     ),
     DeathsDoorLocationData(

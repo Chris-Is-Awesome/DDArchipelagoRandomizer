@@ -65,6 +65,8 @@ internal class UIManager
 		AddItemHandlingToggle();
 		AddCutsceneToggle();
 		AddEnemyRandoToggle();
+		AddEnemyRandoFixedToggle();
+		AddBorderlessToggle();
 		IngameUIManager.RetriggerModifyingOptionsMenuTitleScreen();
 	}
 
@@ -95,6 +97,18 @@ internal class UIManager
 	private void AddEnemyRandoToggle()
 	{
 		OptionsToggle optionsToggle = new(itemText: "ENEMY RANDOMIZER", gameObjectName: "ARCHIPELAGO_UI_ToggleEnnemyRando", id: "ToggleEnnemyRando", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen], toggleAction: Archipelago.Instance.ToggleEnemyRando, toggleValueInitializer: Archipelago.Instance.InitializeEnemyRando, contextText: "BUTTON:CONFIRM Toggle Enemy Ranndomizer BUTTON:BACK Back");
+		IngameUIManager.AddOptionsMenuItem(optionsToggle);
+	}
+
+	private void AddBorderlessToggle()
+	{
+		OptionsToggle optionsToggle = new(itemText: "STAY VISIBLE WHEN UNFOCUSED", gameObjectName: "ARCHIPELAGO_UI_ToggleStayVisible", id: "ToggleStayVisible", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen, IngameUIManager.RelevantScene.InGame], toggleAction: Archipelago.Instance.ToggleStayVisibleUnfocused, toggleValueInitializer: Archipelago.Instance.InitializeStayVisibleUnfocused, contextText: "BUTTON:CONFIRM On: the game stays on screen when you click another window (after a restart) BUTTON:BACK Back");
+		IngameUIManager.AddOptionsMenuItem(optionsToggle);
+	}
+
+	private void AddEnemyRandoFixedToggle()
+	{
+		OptionsToggle optionsToggle = new(itemText: "FIXED RANDOM ENEMIES", gameObjectName: "ARCHIPELAGO_UI_ToggleEnemyRandoFixed", id: "ToggleEnemyRandoFixed", relevantScenes: [IngameUIManager.RelevantScene.TitleScreen], toggleAction: Archipelago.Instance.ToggleEnemyRandoFixed, toggleValueInitializer: Archipelago.Instance.InitializeEnemyRandoFixed, contextText: "BUTTON:CONFIRM On: enemies stay the same in this save. Off: rerolled on every load BUTTON:BACK Back");
 		IngameUIManager.AddOptionsMenuItem(optionsToggle);
 	}
 

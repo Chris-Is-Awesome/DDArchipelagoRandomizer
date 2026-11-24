@@ -193,6 +193,13 @@ internal static class ShopAndPlanting
 
 	private static bool IsApStat(UI_StatUpgrade cell) => ShopActive && cell != null && shopPrices.ContainsKey(cell.itemId);
 
+	/// <summary>
+	/// A stat whose prices come from the seed's Shop Prices: with Shop Upgrades on these are the AP shop's prices,
+	/// with it off (apworld 0.5.0+) the normal shop's
+	/// </summary>
+	private static bool IsPricedStat(UI_StatUpgrade cell) =>
+		Archipelago.Instance.IsConnected() && cell != null && shopPrices.ContainsKey(cell.itemId);
+
 	private static int PriceFor(string statId, int purchased)
 	{
 		List<int> prices = shopPrices[statId];
@@ -345,7 +352,7 @@ internal static class ShopAndPlanting
 		// The game prices by stat level only; remember which stat is being priced so GetCostPerLevel can answer
 		[HarmonyPrefix, HarmonyPatch(typeof(UI_StatUpgrade), nameof(UI_StatUpgrade.checkCanAfford))]
 		private static void CellCostContext(UI_StatUpgrade __instance) =>
-			costContextStat = IsApStat(__instance) ? __instance.itemId : null;
+			costContextStat = IsPricedStat(__instance) ? __instance.itemId : null;
 
 		[HarmonyPrefix, HarmonyPatch(typeof(UIMenuStatUpgrades), nameof(UIMenuStatUpgrades.checkCurrency))]
 		private static void MenuCostContextCheck(UIMenuStatUpgrades __instance) => MenuCostContext(__instance);
@@ -362,7 +369,7 @@ internal static class ShopAndPlanting
 			UI_StatUpgrade cell = __instance.grid != null && __instance.index >= 0 && __instance.index < __instance.grid.Length
 				? __instance.grid[__instance.index]
 				: null;
-			costContextStat = IsApStat(cell) ? cell.itemId : null;
+			costContextStat = IsPricedStat(cell) ? cell.itemId : null;
 		}
 
 		// Finalizers so the context is cleared even if something in between throws
@@ -381,7 +388,7 @@ internal static class ShopAndPlanting
 		[HarmonyPostfix, HarmonyPatch(typeof(Inventory), nameof(Inventory.GetCostPerLevel))]
 		private static void CostPerLevel(int lvl, ref int __result)
 		{
-			if (costContextStat != null && ShopActive && shopPrices.ContainsKey(costContextStat))
+			if (costContextStat != null && Archipelago.Instance.IsConnected() && shopPrices.ContainsKey(costContextStat))
 			{
 				__result = PriceFor(costContextStat, lvl);
 			}

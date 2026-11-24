@@ -33,6 +33,33 @@ internal class DeathManager : MonoBehaviour
 	private DeathLink pendingDeath;
 
 	private bool killingFromDeathLink;
+	private DeathLink countedDeathLink;
+
+	// Counters for DeathLink Amnesty and Death Wish, kept in the save so they survive quitting
+	private const string OwnDeathsKey = "AP_DeathLinkOwnDeaths";
+	private const string ReceivedKey = "AP_DeathLinkReceived";
+
+	private static int DeathLinkAmnesty => SlotNumber("death_link_amnesty", 0);
+	private static int DeathWish => Math.Max(1, SlotNumber("death_wish", 1));
+
+	private static int SlotNumber(string key, int fallback)
+	{
+		// Seeds from apworlds before 0.5.0 don't have these
+		return Archipelago.Instance.TryGetSlotData(key, out object value) && value != null ? Convert.ToInt32(value) : fallback;
+	}
+
+	private static int AddToCounter(string key, int amount)
+	{
+		GameSave save = GameSave.GetSaveData();
+		if (save == null)
+		{
+			return 0;
+		}
+		int value = Math.Max(0, save.GetCountKey(key) + amount);
+		save.SetCountKey(key, value);
+		save.Save();
+		return value;
+	}
 	private float lastDeathTime = float.NegativeInfinity;
 	private float lastSendTime = float.NegativeInfinity;
 	private bool subscribed;
@@ -121,6 +148,25 @@ internal class DeathManager : MonoBehaviour
 			return;
 		}
 
+		// Death Wish (YAML): only every Nth DeathLink kills
+		if (countedDeathLink != deathLink)
+		{
+			countedDeathLink = deathLink;
+			int wish = DeathWish;
+			if (wish > 1)
+			{
+				int received = AddToCounter(ReceivedKey, 1);
+				if (received < wish)
+				{
+					Logger.Log($"DeathLink from {deathLink.Source} ({cause}): {received}/{wish} for Death Wish, not dying yet.");
+					UIManager.Instance.ShowNotification($"DeathLink: {cause} ({received}/{wish})");
+					ClearPending(deathLink);
+					return;
+				}
+				AddToCounter(ReceivedKey, -received);
+			}
+		}
+
 		DamageablePlayer damageable = player.GetComponent<DamageablePlayer>();
 		if (damageable == null || !CanDie(player, damageable))
 		{
@@ -187,6 +233,20 @@ internal class DeathManager : MonoBehaviour
 			return;
 		}
 		lastSendTime = now;
+
+		// DeathLink Amnesty (YAML): the first N of your deaths after each sent one are forgiven
+		int amnesty = DeathLinkAmnesty;
+		if (amnesty > 0)
+		{
+			int ownDeaths = AddToCounter(OwnDeathsKey, 1);
+			if (ownDeaths <= amnesty)
+			{
+				Logger.Log($"You died: forgiven by DeathLink Amnesty ({ownDeaths}/{amnesty}), not sending.");
+				UIManager.Instance.ShowNotification($"DeathLink Amnesty: death {ownDeaths}/{amnesty + 1}, not sent");
+				return;
+			}
+			AddToCounter(OwnDeathsKey, -ownDeaths);
+		}
 
 		string message = deathMessages[UnityEngine.Random.Range(0, deathMessages.Count)];
 		string cause = message.Replace("{name}", playerName);
