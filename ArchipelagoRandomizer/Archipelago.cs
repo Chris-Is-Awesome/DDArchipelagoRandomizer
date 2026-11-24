@@ -530,6 +530,29 @@ internal class Archipelago
 		return apConfig.EnemyRando;
 	}
 
+	internal void ToggleStayVisibleUnfocused(bool newValue)
+	{
+		apConfig.StayVisibleUnfocused = newValue;
+		apConfig.SaveAPConfig();
+		WindowMode.Apply(announce: true);
+	}
+
+	internal bool InitializeStayVisibleUnfocused()
+	{
+		return apConfig.StayVisibleUnfocused;
+	}
+
+	internal void ToggleEnemyRandoFixed(bool newValue)
+	{
+		apConfig.EnemyRandoFixed = newValue;
+		apConfig.SaveAPConfig();
+	}
+
+	internal bool InitializeEnemyRandoFixed()
+	{
+		return apConfig.EnemyRandoFixed;
+	}
+
 	private APSaveData GetAPSaveDataForSlot(int saveIndex)
 	{
 		if (saveIndex > apSaveDataSlots.Length || saveIndex <= 0)
@@ -621,6 +644,10 @@ internal class Archipelago
 		public bool ReceiveItemsFast { get; set; } = false;
 		public bool SkipCutscenes { get; set; } = false;
 		public bool EnemyRando { get; set; } = false;
+		/// <summary>On: each enemy is randomized the same way every time in a save. Off: rerolled on every load of an area.</summary>
+		public bool EnemyRandoFixed { get; set; } = false;
+		/// <summary>In fullscreen, keep the game on screen when another window has focus</summary>
+		public bool StayVisibleUnfocused { get; set; } = true;
 
 		internal void SaveAPConfig()
 		{

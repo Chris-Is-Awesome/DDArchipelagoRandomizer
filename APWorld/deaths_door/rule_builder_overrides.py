@@ -6,7 +6,9 @@ from .locations import DeathsDoorLocationName as L
 from .events import DeathsDoorEventName as E
 from .regions import DeathsDoorRegionName as R
 
+from .bow_option import StartWithBow
 from rule_builder.rules import (
+    True_,
     OptionFilter,
     Has as RBHas,
     HasAll as RBHasAll,
@@ -78,3 +80,12 @@ class CanReachRegion(RBCanReachRegion, game="Death's Door"):
         self, region_name: R, options: "Iterable[OptionFilter[Any]]" = ()
     ) -> None:
         super().__init__(region_name.value, options=options)
+
+# Arrows: always there with start_with_bow on, otherwise only once the Reaper's Bow is found
+HAS_BOW = RBHas(I.REAPERS_BOW.value) | True_(options=[OptionFilter(StartWithBow, 1)])
+# Lighting things: Fire, or an arrow shot through a fire that's already burning (Olaf)
+HAS_FIRE_OR_BOW = RBHas(I.FIRE.value) | HAS_BOW
+# Hitting a switch from a distance: an arrow, Fire or a Bomb (Olaf)
+HAS_RANGED_HIT = RBHasAny(I.FIRE.value, I.BOMB.value) | HAS_BOW
+# Any spell at all, the Hookshot included
+HAS_ANY_SPELL = RBHasAny(I.FIRE.value, I.BOMB.value, I.HOOKSHOT.value) | HAS_BOW

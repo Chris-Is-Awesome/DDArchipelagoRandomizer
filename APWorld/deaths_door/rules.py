@@ -1,3 +1,4 @@
+from .rule_builder_overrides import HAS_BOW, HAS_FIRE_OR_BOW, HAS_RANGED_HIT
 import dataclasses
 from .features import KeyDoor
 from typing import TYPE_CHECKING
@@ -70,7 +71,9 @@ deaths_door_location_rules: dict[L, Rule["DeathsDoorWorld"] | None] = {
     L.MAGIC_SHRINE_CEMETERY_AFTER_SMOUGH_ARENA: Has(I.BOMB),
     L.HEART_SHRINE_HOOKSHOT_ARENA: Has(I.HOOKSHOT),
     L.MAGIC_SHRINE_LOCKSTONE_SECRET_WEST: Has(I.LEVER_LOCKSTONE_SHRINE),
-    L.HEART_SHRINE_CAMP_ICE_SKATING: Has(I.HOOKSHOT),
+    # Switches hit with an arrow, Fire or a Bomb, and the Hookshot over the gaps (Olaf)
+    L.HEART_SHRINE_CAMP_ICE_SKATING: Has(I.HOOKSHOT) & HAS_RANGED_HIT,
+    L.LEVER_LOCKSTONE_HOOKSHOT_PUZZLE: Has(I.HOOKSHOT) & HAS_RANGED_HIT,
     L.MAGIC_SHRINE_RUINS_HOOKSHOT_ARENA: Has(I.HOOKSHOT),
     L.HEART_SHRINE_DUNGEON_WATER_ARENA: HasAll(I.BOMB, I.FIRE),
     L.HEART_SHRINE_GARDEN_OF_LIFE: Has(I.FIRE),
@@ -103,9 +106,38 @@ deaths_door_location_rules: dict[L, Rule["DeathsDoorWorld"] | None] = {
     L.SEED_WATCHTOWERS_ARCHER_PLATFORM: Has(I.HOOKSHOT),
     L.SOUL_ORB_RUINS_STUMP: Has(I.HOOKSHOT),
     L.SOUL_ORB_DUNGEON_COBWEB: Has(I.FIRE),
+    # Without Fire, these need arrows shot through the fires that are already burning (Olaf)
+    L.KEY_MANOR_AFTER_SPINNY_POT_ROOM: HAS_FIRE_OR_BOW,
+    L.CROW_MANOR_AFTER_TORCH_PUZZLE: HAS_FIRE_OR_BOW,
+    L.SOUL_ORB_MANOR_IMP_LOFT: HAS_FIRE_OR_BOW,
+    L.CROW_MANOR_IMP_LOFT: HAS_FIRE_OR_BOW,
+    L.KEY_MANOR_UNDER_DINING_ROOM: HAS_FIRE_OR_BOW,
+    L.KEY_MANOR_LIBRARY: HAS_FIRE_OR_BOW,
+    # The library side needs Fire, the bow, or the Bookshelf Shortcut opened from the other side (Olaf)
+    L.LEVER_MANOR_BOOKSHELF_SHORTCUT: Has(I.LEVER_MANOR_BOOKSHELF_SHORTCUT) | HAS_FIRE_OR_BOW,
+    L.CROW_MANOR_LIBRARY: Has(I.LEVER_MANOR_BOOKSHELF_SHORTCUT) | HAS_FIRE_OR_BOW,
+    # The bedroom needs the Hookshot, Bomb, Fire or the bow (Olaf)
+    L.CROW_MANOR_BEDROOM: HasAny(I.HOOKSHOT, I.BOMB) | HAS_FIRE_OR_BOW,
+    # Garden of Joy: Fire or the bow, or the Garden of Joy lever (Olaf, corrected: the Bomb doesn't do it)
+    L.SEED_GARDEN_OF_JOY: Has(I.LEVER_GARDEN_OF_JOY) | HAS_FIRE_OR_BOW,
+    L.LEVER_GARDEN_OF_JOY: Has(I.LEVER_GARDEN_OF_JOY) | HAS_FIRE_OR_BOW,
+    # The pot puzzle into the Garden of Love is close to impossible without arrows (Olaf)
+    L.RUSTY_GARDEN_TROWEL: HAS_BOW,
+    # The Frog King destroys the platforms faster than he can be killed without arrows to reset them (Olaf)
+    L.FROG_KING: HAS_BOW,
+    L.GIANT_ARROWHEAD: HAS_BOW,
+    # The throne room's door only opens once the Frog King is beaten (or comes from the Hall of Doors side with the door)
+    L.THRONE_OF_THE_FROG_KING_DOOR: HAS_BOW | Has(I.THRONE_OF_THE_FROG_KING_DOOR),
+    # The Frog King Statue area's checks need arrows (Olaf)
+    L.SEED_FORTRESS_STATUE: HAS_BOW,
+    L.SEED_FORTRESS_EAST_AFTER_STATUE: HAS_BOW,
+    L.LEVER_FORTRESS_STATUE: HAS_BOW,
+    L.SOUL_ORB_FORTRESS_DROP: HAS_BOW,
+    L.LEVER_FORTRESS_WATCHTOWER_LOWER: HAS_BOW,
+    L.MAGIC_SHRINE_FORTRESS_BOW_SECRET: HAS_BOW,
     L.SOUL_ORB_DUNGEON_LOWER_ENTRANCE: Has(I.BOMB),
     L.SOUL_ORB_RUINS_LOWER_BOMB_WALL: Has(I.BOMB)
-    | True_(options=[OptionFilter(OffscreenTargetingTricks, 1)])
+    | (True_(options=[OptionFilter(OffscreenTargetingTricks, 1)]) & HAS_BOW)
     | Has(E.OOL),
     L.SOUL_ORB_RUINS_LORD_OF_DOORS_ARENA_HOOKSHOT: Has(I.HOOKSHOT)
     | True_(options=[OptionFilter(GeometryExploits, 1)])
@@ -134,7 +166,7 @@ deaths_door_location_rules: dict[L, Rule["DeathsDoorWorld"] | None] = {
     L.SOUL_ORB_FIRE_SECRET: Has(I.FIRE),
     L.YELLOW_ANCIENT_TABLET_OF_KNOWLEDGE: Has(E.ACCESS_TO_NIGHT),
     L.RUINS_OWL: Has(E.ACCESS_TO_NIGHT),
-    L.GREEN_ANCIENT_TABLET_OF_KNOWLEDGE: HasPlantedEnoughLifeSeeds(),
+    L.GREEN_ANCIENT_TABLET_OF_KNOWLEDGE: HasPlantedEnoughLifeSeeds() & HAS_BOW,
     L.ESTATE_OWL: Has(E.ACCESS_TO_NIGHT),
     L.CYAN_ANCIENT_TABLET_OF_KNOWLEDGE: Has(E.ACCESS_TO_NIGHT)
     & CanReachRegion(R.LOST_CEMETERY_CENTRAL)
@@ -154,7 +186,8 @@ deaths_door_location_rules: dict[L, Rule["DeathsDoorWorld"] | None] = {
         I.LEVER_LOCKSTONE_TRACKING_BEAM_PUZZLE
     ),
     L.LEVER_LOCKSTONE_SHRINE: Has(I.HOOKSHOT),
-    L.LEVER_LOCKSTONE_UPPER_PUZZLE: Has(I.HOOKSHOT),
+    # Its switches need an arrow, Fire or a Bomb besides the Hookshot (Olaf)
+    L.LEVER_LOCKSTONE_UPPER_PUZZLE: Has(I.HOOKSHOT) & HAS_RANGED_HIT,
     L.LEVER_LOCKSTONE_UPPER_DUAL_LASER_PUZZLE: KeyDoor(I.PINK_KEY, 5, "ffort_key1") & Has(I.HOOKSHOT),
     L.LEVER_FORTRESS_MAIN_GATE: HasAny(I.BOMB, I.HOOKSHOT),
     L.LEVER_FORTRESS_CENTRAL_SHORTCUT: Has(I.BOMB),

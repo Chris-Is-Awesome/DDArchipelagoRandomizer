@@ -13,8 +13,8 @@ estate_entrances: list[DeathsDoorEntrance] = [
         R.ESTATE_OF_THE_URN_WITCH_ENTRANCE, R.ESTATE_OF_THE_URN_WITCH_EXIT_TO_CRYPT, None
     ),
     DeathsDoorEntrance(
-        R.ESTATE_OF_THE_URN_WITCH_ENTRANCE, R.ESTATE_OF_THE_URN_WITCH_SOUTH, None
-    ),
+        R.ESTATE_OF_THE_URN_WITCH_ENTRANCE, R.ESTATE_OF_THE_URN_WITCH_SOUTH, Has(E.ESTATE_OF_THE_URN_WITCH_ENTRANCE_LAMPS)
+    ),  # the lamps need Fire or an arrow (Olaf)
     DeathsDoorEntrance(
         R.ESTATE_OF_THE_URN_WITCH_SOUTH, R.ESTATE_OF_THE_URN_WITCH_ENTRANCE, Has(E.ESTATE_OF_THE_URN_WITCH_ENTRANCE_LAMPS)
     ),  # Here so that Jefferson can have backwards access if we have forward access without Jefferson

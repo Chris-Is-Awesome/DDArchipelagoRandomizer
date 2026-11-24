@@ -398,15 +398,65 @@ internal class EnemyRandomizer : MonoBehaviour
 			return false;
 		}
 
-		replacement = GetRandomEnemy();
-		return true;
+		replacement = GetRandomEnemy(comp);
+		return replacement != null;
 	}
 
-	private GameObject GetRandomEnemy()
+	private const string FixedSeedKey = "AP_EnemyRandoSeed";
+
+	/// <summary>
+	/// With Fixed Random Enemies on, the roll for an enemy only depends on the save and where the enemy is, so the same
+	/// enemy comes back every time the area loads (respawn, death, loading zone, reloading the save). Off, it's random
+	/// every time.
+	/// </summary>
+	private static int Roll(Component comp, int totalWeight)
+	{
+		if (!Archipelago.Instance.apConfig.EnemyRandoFixed || GameSave.currentSave == null)
+		{
+			return Random.Range(0, totalWeight);
+		}
+
+		// A number made once per save, so two saves of the same seed don't get the same enemies
+		int saveSeed = GameSave.currentSave.GetCountKey(FixedSeedKey);
+		if (saveSeed == 0)
+		{
+			saveSeed = Random.Range(1, int.MaxValue);
+			GameSave.currentSave.SetCountKey(FixedSeedKey, saveSeed);
+		}
+
+		uint hash = Fnv(2166136261u, saveSeed.ToString());
+		hash = Fnv(hash, SceneManager.GetActiveScene().name);
+		hash = Fnv(hash, comp.GetType().Name);
+		for (Transform t = comp.transform; t != null; t = t.parent)
+		{
+			hash = Fnv(hash, t.name);
+			hash = Fnv(hash, t.GetSiblingIndex().ToString());
+		}
+		// Mix the bits before taking the remainder
+		hash ^= hash >> 16;
+		hash *= 0x7feb352d;
+		hash ^= hash >> 15;
+		return (int)(hash % (uint)totalWeight);
+
+		static uint Fnv(uint hash, string text)
+		{
+			foreach (char c in text)
+			{
+				hash = (hash ^ c) * 16777619u;
+			}
+			return (hash ^ '/') * 16777619u;
+		}
+	}
+
+	private GameObject GetRandomEnemy(Component comp)
 	{
 		List<EnemyData> enemies = enemyTypeLookup.Values.Where(data => enemyTypeEnabled[data.type].Value == true).ToList();
 		int totalWeight = enemies.Sum(e => e.GetWeight());
-		int roll = Random.Range(0, totalWeight);
+		if (totalWeight <= 0)
+		{
+			return null;
+		}
+		int roll = Roll(comp, totalWeight);
 		int cumulative = 0;
 
 		foreach (EnemyData enemy in enemies)
